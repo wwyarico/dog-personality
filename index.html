@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>狗狗性格测试</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+    --paper:#F6EFE0;
+    --paper-deep:#ECE1CB;
+    --cream:#FFFDF6;
+    --ink:#3E3A33;
+    --ink-soft:#6E6657;
+    --ink-faint:#A99E88;
+    --terra:#C97B4A;
+    --terra-deep:#B2623A;
+    --terra-soft:#E9CDB2;
+    --sage:#94A48B;
+    --sage-deep:#74836C;
+    --mustard:#E3A83B;
+    --clay:#D9815B;
+    --line:#E2D7BF;
+    --shadow-sm:0 2px 6px rgba(122,96,60,.12);
+    --shadow-md:0 10px 26px rgba(122,96,60,.20);
+    --shadow-lg:0 22px 50px rgba(90,68,40,.28);
+    --font-title:'Ma Shan Zheng','STKaiti','KaiTi',cursive;
+    --font-display:'ZCOOL KuaiLe','PingFang SC','Microsoft YaHei',sans-serif;
+    --font-body:'Noto Serif SC','Songti SC','SimSun',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{height:100%;}
+body{
+    min-height:100%;
+    color:var(--ink);
+    font-family:var(--font-body);
+    display:flex;justify-content:center;
+    background-color:#E9DFCB;
+    background-image:
+        radial-gradient(circle at 20% 10%, rgba(201,123,74,.06), transparent 45%),
+        radial-gradient(circle at 85% 90%, rgba(148,164,139,.08), transparent 40%);
+}
+
+#app{
+    width:100%;max-width:480px;min-height:100vh;min-height:100dvh;
+    position:relative;overflow-x:hidden;
+    display:flex;flex-direction:column;
+    background:
+        linear-gradient(180deg, rgba(255,252,244,.35), rgba(246,239,224,.55)),
+        url("images/asset-001.webp") center / cover no-repeat;
+    box-shadow:0 0 0 1px rgba(122,96,60,.08), 0 0 60px rgba(90,68,40,.25);
+}
+#app::after{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:6;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+    mix-blend-mode:multiply;
+}
+
+.page{
+    position:relative;z-index:1;
+    display:none;flex:1;flex-direction:column;
+    padding:32px 26px 28px;
+}
+.page.active{display:flex;}
+.page.active.enter{animation:pageIn .5s cubic-bezier(.22,.9,.36,1) both;}
+@keyframes pageIn{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+.btn{
+    display:block;width:100%;padding:16px 0;
+    border:none;border-radius:999px;
+    font-family:var(--font-display);font-size:18px;letter-spacing:3px;color:#fff;
+    background:linear-gradient(135deg,var(--terra),var(--terra-deep));
+    box-shadow:0 10px 22px rgba(201,123,74,.35), inset 0 -2px 0 rgba(0,0,0,.08);
+    cursor:pointer;transition:transform .18s ease, box-shadow .18s ease;
+}
+.btn:active{transform:scale(.97);}
+.btn:disabled{background:#D8D0BF;box-shadow:none;color:#fff;cursor:not-allowed;}
+.btn.ghost{background:transparent;color:var(--terra);border:2px dashed var(--terra-soft);box-shadow:none;}
+.btn.sage{background:linear-gradient(135deg,var(--sage),var(--sage-deep));box-shadow:0 10px 22px rgba(116,131,108,.3);}
+
+/* ============ 封面：贴纸铺满、无底板 ============ */
+#page-cover{padding-top:36px;align-items:center;overflow:hidden;}
+.sticker-layer{
+    position:relative;width:100%;height:44vh;min-height:260px;max-height:440px;
+    z-index:1;pointer-events:none;overflow:hidden;margin-top:14px;
+}
+.sticker-layer .sticker{pointer-events:auto;}
+.sticker{
+    position:absolute;cursor:grab;touch-action:none;
+    user-select:none;-webkit-user-select:none;z-index:1;
+}
+.sticker img{
+    width:100%;height:auto;display:block;pointer-events:none;
+    filter:drop-shadow(0 3px 5px rgba(122,96,60,.22));
+    transition:filter .22s ease;
+}
+.sticker.lifting{z-index:60;cursor:grabbing;}
+.sticker.lifting img{filter:drop-shadow(0 16px 24px rgba(90,68,40,.36));}
+.sticker.settling{transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+
+.cover-title{
+    position:relative;z-index:2;
+    font-family:var(--font-title);font-size:46px;font-weight:400;line-height:1.15;
+    color:var(--ink);letter-spacing:3px;text-align:center;
+    text-shadow:0 2px 6px rgba(255,252,244,.9), 0 2px 12px rgba(255,252,244,.7);
+}
+.cover-title .mark{color:var(--terra);}
+
+.cover-bottom{
+    position:relative;z-index:2;width:100%;margin-top:auto;
+    display:flex;flex-direction:column;align-items:center;
+    padding-top:14px;
+}
+.cover-fields{width:100%;margin-bottom:26px;}
+.field-label{
+    display:block;font-family:var(--font-display);
+    font-size:12px;letter-spacing:2px;color:var(--ink-soft);margin-bottom:8px;
+    text-align:center;
+}
+.field input{
+    width:100%;padding:15px 18px;
+    border:none;border-radius:15px;
+    background:rgba(255,253,246,.92);
+    box-shadow:inset 0 0 0 1px rgba(122,96,60,.14), 0 4px 14px rgba(122,96,60,.08);
+    font-family:var(--font-body);font-size:17px;color:var(--ink);
+    outline:none;text-align:center;
+    transition:box-shadow .2s;
+}
+.field input:focus{box-shadow:inset 0 0 0 2px var(--terra);}
+.field input::placeholder{color:#C7BBA3;}
+
+.reference-note{margin-top:16px;text-align:center;font-size:11px;color:var(--ink-faint);}
+
+/* ============ 答题页 ============ */
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.btn-back{
+    background:none;border:none;cursor:pointer;
+    display:flex;align-items:center;gap:2px;
+    font-family:var(--font-display);font-size:14px;color:var(--ink-soft);
+    padding:6px 10px;border-radius:10px;
+}
+.btn-back:disabled{opacity:0;pointer-events:none;}
+.btn-back .arrow{font-size:20px;line-height:1;color:var(--terra);}
+.progress-text{font-family:var(--font-display);font-size:14px;color:var(--ink-faint);letter-spacing:1px;}
+.progress-text b{color:var(--terra);font-size:17px;}
+
+.progress{position:relative;height:46px;margin-bottom:8px;padding:0 2px;}
+.progress-track{
+    position:absolute;left:0;right:0;bottom:4px;height:9px;
+    background:var(--paper-deep);border-radius:99px;
+    box-shadow:inset 0 1px 2px rgba(122,96,60,.18);
+}
+.progress-fill{
+    position:absolute;left:0;bottom:0;height:100%;width:0%;
+    border-radius:99px;background:linear-gradient(90deg,var(--sage),var(--sage-deep));
+    transition:width .5s cubic-bezier(.22,.9,.36,1);
+}
+.progress-bone{
+    position:absolute;bottom:13px;left:0%;
+    transform:translateX(-50%);
+    transition:left .5s cubic-bezier(.22,.9,.36,1);
+    z-index:3;pointer-events:none;
+    animation:boneBob 2.6s ease-in-out infinite;
+}
+.progress-bone img{
+    width:44px;height:auto;display:block;transform:rotate(-4deg);
+    filter:drop-shadow(0 3px 4px rgba(122,96,60,.35));
+}
+@keyframes boneBob{
+    0%,100%{transform:translateX(-50%) translateY(0);}
+    50%{transform:translateX(-50%) translateY(-3px);}
+}
+
+.q-block{margin-bottom:24px;}
+.q-num{font-family:var(--font-display);font-size:13px;letter-spacing:2px;color:var(--terra);margin-bottom:8px;}
+.question-text{font-size:20px;line-height:1.7;font-weight:600;}
+.question-text .nm{color:var(--terra);}
+
+.scale{width:100%;padding:0 4px;margin-bottom:26px;}
+.scale-labels{
+    display:flex;justify-content:space-between;
+    font-family:var(--font-display);font-size:12px;color:var(--ink-faint);
+    margin-bottom:13px;letter-spacing:1px;
+}
+.scale-dots{display:flex;justify-content:space-between;gap:5px;}
+.dot{
+    flex:1;aspect-ratio:1;max-width:46px;
+    border-radius:50%;border:2px solid #D9CFBB;
+    background:var(--cream);color:var(--ink-soft);
+    font-family:var(--font-display);font-size:16px;position:relative;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .18s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 2px 4px rgba(122,96,60,.08);
+}
+.dot:active{transform:scale(.9);}
+.dot.selected{
+    background:linear-gradient(145deg,var(--terra),var(--terra-deep));
+    border-color:var(--terra-deep);color:#fff;
+    transform:scale(1.12);box-shadow:0 6px 14px rgba(201,123,74,.4);
+}
+.dot.selected::after{content:"🐾";position:absolute;font-size:10px;top:-12px;}
+
+/* 底部配图：无外框、统一 5:4 比例 */
+.illustration{
+    margin-top:auto;width:100%;aspect-ratio:5/4;
+    position:relative;
+}
+.illustration > img{
+    width:100%;height:100%;object-fit:contain;display:block;
+}
+
+/* ============ 基础信息页 ============ */
+#page-profile{padding:30px 24px 42px;overflow-y:auto;}
+.profile-head{text-align:center;margin-bottom:22px;}
+.profile-title{font-family:var(--font-title);font-size:36px;font-weight:400;letter-spacing:2px;color:var(--ink);}
+.profile-subtitle{margin-top:6px;font-size:12px;letter-spacing:1px;color:var(--ink-faint);}
+.profile-section{background:rgba(255,253,246,.82);border-radius:20px;padding:18px 16px;margin-bottom:14px;box-shadow:var(--shadow-sm);}
+.profile-section.optional{border:1.5px dashed var(--terra-soft);background:rgba(255,253,246,.66);}
+.profile-q{font-family:var(--font-display);font-size:16px;line-height:1.6;color:var(--ink);letter-spacing:.5px;margin-bottom:5px;}
+.profile-hint{font-size:12px;line-height:1.65;color:var(--ink-faint);margin-bottom:12px;}
+.profile-options{display:flex;flex-wrap:wrap;gap:9px;}
+.choice{position:relative;display:inline-flex;align-items:center;cursor:pointer;}
+.choice input{position:absolute;opacity:0;pointer-events:none;}
+.choice span{display:inline-flex;align-items:center;min-height:38px;padding:7px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--cream);font-size:13px;line-height:1.35;color:var(--ink-soft);transition:all .18s ease;}
+.choice.radio span{border-radius:999px;}
+.choice input:checked + span{border-color:var(--terra);background:rgba(201,123,74,.11);color:var(--terra-deep);box-shadow:0 3px 8px rgba(201,123,74,.14);}
+.choice input:checked + span::before{content:'✓';font-family:var(--font-display);margin-right:5px;color:var(--terra);}
+.profile-text,.profile-select{width:100%;border:1.5px solid var(--line);border-radius:13px;background:var(--cream);padding:12px 13px;font:14px var(--font-body);color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s;}
+.profile-text:focus,.profile-select:focus{border-color:var(--terra);box-shadow:0 0 0 3px rgba(201,123,74,.12);}
+.profile-text::placeholder{color:#B9AE99;}
+.age-row{display:flex;align-items:center;gap:8px;}
+.age-row .profile-select{flex:1;min-width:0;appearance:auto;}
+.age-unit{font-family:var(--font-display);font-size:14px;color:var(--ink-soft);white-space:nowrap;}
+.inline-other{display:none;width:100%;margin-top:2px;}
+.inline-other.show{display:block;}
+.profile-limit{margin:10px 0 0;font-size:12px;color:var(--terra);min-height:18px;}
+.profile-next{margin-top:8px;}
+.profile-back{margin-top:12px;font-size:13px;letter-spacing:1px;}
+.profile-contact{display:none;margin-top:12px;padding-top:14px;border-top:1px dashed var(--line);}
+.profile-contact.show{display:block;animation:fadeIn .25s ease;}
+.contact-row{margin-top:9px;}
+.contact-row:first-child{margin-top:0;}
+.contact-row label{display:block;font-family:var(--font-display);font-size:12px;color:var(--ink-soft);margin-bottom:5px;letter-spacing:1px;}
+
+/* ============ 结果页 ============ */
+#page-result{padding:32px 24px 40px;align-items:center;overflow-y:auto;}
+
+.result-head{width:100%;display:flex;flex-direction:column;align-items:center;margin-bottom:20px;}
+.result-title{
+    font-family:var(--font-title);font-size:34px;font-weight:400;color:var(--ink);
+    letter-spacing:1px;text-align:center;
+}
+
+.archetype{
+    width:100%;background:var(--cream);border-radius:22px;
+    padding:22px 18px;box-shadow:var(--shadow-md);
+    display:flex;flex-direction:column;align-items:center;margin-bottom:22px;
+}
+.archetype-emoji{font-size:46px;line-height:1;}
+.archetype-name{font-family:var(--font-title);font-size:32px;line-height:1.3;color:var(--terra);margin-top:8px;text-align:center;}
+.archetype-name .type-top,.archetype-name .type-bottom{display:block;}
+.archetype-name .type-bottom{font-size:1.08em;margin-top:2px;}
+.archetype-tagline{max-width:310px;margin-top:10px;font-size:14px;line-height:1.75;color:var(--ink-soft);text-align:center;}
+
+.radar-wrap{width:100%;max-width:320px;margin:0 auto 20px;}
+.radar-wrap svg{width:100%;height:auto;display:block;}
+
+/* 五维可展开卡片 */
+.dim-section{width:100%;display:flex;flex-direction:column;gap:13px;margin-bottom:22px;}
+.dim-hint{
+    text-align:center;font-family:var(--font-display);font-size:11px;color:var(--ink-faint);
+    margin-bottom:-2px;letter-spacing:1px;
+}
+.dim-card{
+    background:var(--cream);border-radius:16px;padding:15px 17px;
+    box-shadow:var(--shadow-sm);border-left:4px solid var(--sage);
+}
+.dim-card:nth-child(3n+2){border-left-color:var(--mustard);}
+.dim-card:nth-child(3n+3){border-left-color:var(--clay);}
+.dim-head{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    cursor:pointer;user-select:none;-webkit-user-select:none;
+}
+.dim-title{display:flex;flex-direction:column;gap:2px;}
+.dim-name{font-family:var(--font-display);font-size:15px;color:var(--ink);letter-spacing:1px;}
+.dim-en{font-size:11px;color:var(--ink-faint);letter-spacing:.3px;}
+.dim-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.dim-score{font-family:var(--font-title);font-size:24px;color:var(--terra);line-height:1.1;}
+.dim-score span{font-size:12px;color:var(--ink-faint);font-family:var(--font-body);}
+.dim-chevron{font-size:15px;color:var(--ink-faint);transition:transform .25s ease;}
+.dim-card.expanded .dim-chevron{transform:rotate(180deg);}
+.dim-bar{height:7px;border-radius:99px;background:var(--paper-deep);margin:10px 0 9px;overflow:hidden;}
+.dim-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--terra),var(--mustard));width:0%;transition:width 1s ease;}
+.dim-summary{font-size:12.5px;line-height:1.7;color:var(--ink-soft);}
+.dim-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
+.dim-card.expanded .dim-detail{display:block;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.dim-meaning{font-size:13.5px;line-height:1.85;color:var(--ink-soft);}
+.dim-facets{margin-top:9px;font-size:11.5px;line-height:1.6;color:var(--ink-faint);}
+.dim-facets b{color:var(--terra);font-weight:600;}
+.dim-tip{margin-top:9px;font-size:13px;line-height:1.75;color:var(--sage-deep);}
+.dim-tip b{color:var(--terra);font-weight:600;}
+
+.analysis-box,.advice-box{
+    width:100%;background:rgba(255,253,246,.8);border:2px dashed var(--terra-soft);
+    border-radius:18px;padding:16px 18px;margin-bottom:16px;
+}
+.sec-title{font-family:var(--font-display);font-size:15px;color:var(--terra);letter-spacing:2px;margin-bottom:9px;}
+.analysis-box p{font-size:14px;line-height:1.85;color:var(--ink-soft);}
+.advice-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.advice-list li{position:relative;padding-left:24px;font-size:14px;line-height:1.75;color:var(--ink-soft);}
+.advice-list li::before{content:"🦴";position:absolute;left:0;top:1px;font-size:13px;}
+
+.disclaimer{
+    width:100%;background:rgba(148,164,139,.12);border-radius:12px;
+    padding:11px 14px;margin-bottom:20px;
+    font-size:11px;line-height:1.7;color:var(--sage-deep);
+    display:flex;gap:8px;align-items:flex-start;
+}
+.disclaimer .ic{font-size:13px;}
+.source-note{width:100%;text-align:center;font-size:11px;color:var(--ink-faint);margin-bottom:16px;line-height:1.7;}
+
+.cert{
+    position:relative;width:100%;
+    background:linear-gradient(170deg,#FFFDF6,#F3ECDA);
+    border-radius:20px;padding:26px 20px 20px;
+    box-shadow:var(--shadow-lg);margin-bottom:18px;overflow:hidden;
+}
+.cert::before{
+    content:"";position:absolute;inset:10px;border:1.5px solid rgba(201,123,74,.22);
+    border-radius:14px;pointer-events:none;
+}
+.cert-top{text-align:center;font-family:var(--font-display);font-size:12px;letter-spacing:4px;color:var(--ink-faint);margin-bottom:14px;}
+.cert-name{text-align:center;font-family:var(--font-title);font-size:40px;color:var(--ink);line-height:1.2;}
+.cert-type{
+    display:table;margin:12px auto 18px;
+    background:var(--terra);color:#fff;
+    font-family:var(--font-display);font-size:15px;letter-spacing:1px;
+    padding:7px 18px;border-radius:999px;box-shadow:0 5px 12px rgba(201,123,74,.3);
+}
+.cert-bars{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;}
+.cert-bar{display:flex;align-items:center;gap:9px;}
+.cert-bar .lb{width:72px;text-align:right;font-family:var(--font-display);font-size:12px;color:var(--ink-soft);flex-shrink:0;}
+.cert-bar .track{flex:1;height:8px;border-radius:99px;background:var(--paper-deep);overflow:hidden;}
+.cert-bar .track i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--terra),var(--mustard));}
+.cert-bar .val{width:34px;font-family:var(--font-display);font-size:12px;color:var(--terra);text-align:left;}
+.cert-foot{
+    border-top:1px dashed var(--line);padding-top:12px;
+    display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--ink-faint);
+}
+.cert-actions{width:100%;display:flex;gap:12px;margin-bottom:6px;}
+.cert-actions .btn{flex:1;font-size:15px;}
+.result-footer{width:100%;margin-top:4px;}
+
+/* 今日运势弹窗（仅一句话） */
+.fortune-overlay{
+    position:fixed;inset:0;z-index:999;
+    background:rgba(62,58,51,.42);
+    display:none;align-items:center;justify-content:center;
+    padding:34px;
+}
+.fortune-overlay.show{display:flex;animation:fadeIn .2s ease;}
+.fortune-box{
+    max-width:82%;
+    background:linear-gradient(170deg,#FFFDF6,#F3ECDA);
+    border-radius:20px;padding:26px 30px;
+    box-shadow:0 24px 60px rgba(40,30,15,.4);
+    text-align:center;position:relative;
+    animation:popIn .35s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn{from{transform:scale(.82);opacity:0;}to{transform:scale(1);opacity:1;}}
+.fortune-text{font-family:var(--font-body);font-size:17px;line-height:1.85;color:var(--ink);}
+
+@media (max-width:360px){
+    .cover-title{font-size:38px;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+    <!-- ============ 封面 ============ -->
+    <div id="page-cover" class="page active">
+        <h1 class="cover-title">狗狗<span class="mark">性格</span>测试</h1>
+
+        <div class="sticker-layer" id="sticker-layer"></div>
+
+        <div class="cover-bottom">
+            <div class="cover-fields">
+                <div class="field">
+                    <input type="text" id="dogNameInput" placeholder="输入狗狗名字">
+                </div>
+            </div>
+
+            <button id="startBtn" class="btn" onclick="startTest()">开始测试</button>
+
+            <div class="reference-note">基于 DPQ 犬类性格 45 题量表<br>问卷来源：A. Jones (2008). Development and validation of a Dog Personality Questionnaire · Corpus ID 147420392</div>
+        </div>
+    </div>
+
+    <!-- ============ 答题页 ============ -->
+    <div id="page-quiz" class="page">
+        <div class="top-bar">
+            <button id="btn-back" class="btn-back" onclick="goBack()"><span class="arrow">‹</span>上一题</button>
+            <div class="progress-text" id="progress-text">1 / 45</div>
+        </div>
+
+        <div class="progress">
+            <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+            <div class="progress-bone" id="progress-bone">
+                <img src="images/asset-002.webp" alt="" draggable="false">
+            </div>
+        </div>
+
+        <div class="q-block">
+            <div class="q-num" id="q-num">第 1 题</div>
+            <div class="question-text" id="quiz-text">题目加载中…</div>
+        </div>
+
+        <div class="scale">
+            <div class="scale-labels">
+                <span>完全不像</span><span>中立</span><span>非常像</span>
+            </div>
+            <div class="scale-dots" id="scale-dots"></div>
+        </div>
+
+        <div class="illustration" id="q-illustration"></div>
+    </div>
+
+    <!-- ============ 基础信息页 ============ -->
+    <div id="page-profile" class="page">
+        <div class="profile-head">
+            <h2 class="profile-title">基础信息</h2>
+            <p class="profile-subtitle">再花 1 分钟，让我们更了解 TA 一点</p>
+        </div>
+
+        <section class="profile-section">
+            <h3 class="profile-q">1. 你的狗狗目前多大？</h3>
+            <p class="profile-hint">不知道具体年龄，填写大概即可</p>
+            <div class="age-row">
+                <select id="dog-age-years" class="profile-select" aria-label="狗狗年龄（岁）"></select><span class="age-unit">岁</span>
+                <select id="dog-age-months" class="profile-select" aria-label="狗狗年龄（月）"></select><span class="age-unit">个月</span>
+            </div>
+        </section>
+
+        <section class="profile-section">
+            <h3 class="profile-q">2. 你的狗狗是什么品种？</h3>
+            <p class="profile-hint">可搜索或从列表中选择；混血犬也可以填写</p>
+            <input id="dog-breed" class="profile-text" list="breed-list" placeholder="输入或搜索狗狗品种">
+            <datalist id="breed-list"></datalist>
+            <div class="profile-options" style="margin-top:10px">
+                <label class="choice radio"><input type="radio" name="breed-status" value="其他"><span>其他</span></label>
+                <label class="choice radio"><input type="radio" name="breed-status" value="不确定"><span>不确定</span></label>
+            </div>
+            <input id="dog-breed-other" class="profile-text inline-other" placeholder="请填写狗狗品种" style="margin-top:10px">
+        </section>
+
+        <section class="profile-section">
+            <h3 class="profile-q">3. 狗狗的性别是？</h3>
+            <div class="profile-options">
+                <label class="choice radio"><input type="radio" name="dog-sex" value="公犬"><span>公犬</span></label>
+                <label class="choice radio"><input type="radio" name="dog-sex" value="母犬"><span>母犬</span></label>
+            </div>
+        </section>
+
+        <section class="profile-section">
+            <h3 class="profile-q">4. 是否已绝育？</h3>
+            <div class="profile-options">
+                <label class="choice radio"><input type="radio" name="neutered" value="已绝育"><span>已绝育</span></label>
+                <label class="choice radio"><input type="radio" name="neutered" value="未绝育"><span>未绝育</span></label>
+                <label class="choice radio"><input type="radio" name="neutered" value="计划绝育"><span>计划绝育</span></label>
+                <label class="choice radio"><input type="radio" name="neutered" value="不清楚"><span>不清楚</span></label>
+            </div>
+        </section>
+
+        <section class="profile-section">
+            <h3 class="profile-q">5. 这是你第一次养狗吗？</h3>
+            <div class="profile-options">
+                <label class="choice radio"><input type="radio" name="first-dog" value="是"><span>是</span></label>
+                <label class="choice radio"><input type="radio" name="first-dog" value="不是"><span>不是</span></label>
+            </div>
+        </section>
+
+        <section class="profile-section">
+            <h3 class="profile-q">6. 目前你最希望改善狗狗哪些方面？</h3>
+            <p class="profile-hint">可多选</p>
+            <div class="profile-options" id="concern-options"></div>
+            <input id="concern-other" class="profile-text inline-other" placeholder="请填写其他想改善的问题" style="margin-top:10px">
+        </section>
+
+        <section class="profile-section" id="primary-concern-section" hidden>
+            <h3 class="profile-q">7. 如果只能选一个，目前你最想解决的问题是？</h3>
+            <p class="profile-hint">仅显示你在上一题中选择的选项</p>
+            <div class="profile-options" id="primary-concern-options"></div>
+        </section>
+
+        <section class="profile-section">
+            <h3 class="profile-q">8. 你平时主要通过哪些渠道学习养狗知识？</h3>
+            <p class="profile-hint">最多选择 5 项</p>
+            <div class="profile-options" id="learning-options"></div>
+            <input id="learning-other" class="profile-text inline-other" placeholder="请填写其他学习渠道" style="margin-top:10px">
+            <p class="profile-limit" id="learning-limit"></p>
+        </section>
+
+        <section class="profile-section optional">
+            <h3 class="profile-q">9. 如果有一个科学养宠助手，你最希望它帮你做什么？</h3>
+            <p class="profile-hint">选填</p>
+            <textarea id="assistant-wish" class="profile-text" rows="4" placeholder="写下你的期待…"></textarea>
+        </section>
+
+        <section class="profile-section">
+            <h3 class="profile-q">10. 你是通过什么渠道来到这个测试页面的？</h3>
+            <div class="profile-options" id="source-options"></div>
+            <input id="source-other" class="profile-text inline-other" placeholder="请填写来源渠道" style="margin-top:10px">
+        </section>
+
+        <section class="profile-section">
+            <h3 class="profile-q">11. 后续可能会推出更多科学宠物测试以及相应报告，你愿意参与内测吗？</h3>
+            <div class="profile-options">
+                <label class="choice radio"><input type="radio" name="beta-test" value="愿意"><span>愿意</span></label>
+                <label class="choice radio"><input type="radio" name="beta-test" value="暂时不了"><span>暂时不了</span></label>
+            </div>
+            <div class="profile-contact" id="profile-contact">
+                <h3 class="profile-q">12. 请留下你的联系方式</h3>
+                <p class="profile-hint">任选一种，三个输入框任意填写一个即可</p>
+                <div class="contact-row"><label for="contact-wechat">微信</label><input id="contact-wechat" class="profile-text" placeholder="微信号"></div>
+                <div class="contact-row"><label for="contact-email">邮箱</label><input id="contact-email" class="profile-text" type="email" placeholder="邮箱地址"></div>
+                <div class="contact-row"><label for="contact-phone">手机号</label><input id="contact-phone" class="profile-text" type="tel" inputmode="tel" placeholder="手机号"></div>
+            </div>
+        </section>
+
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAEZXvjFISiBZmlP8" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired" data-error-callback="onTurnstileError"></div>
+        <button class="btn profile-next" type="button" onclick="submitProfile()">查看测试结果</button>
+        <button class="btn ghost profile-back" type="button" onclick="backToLastQuestion()">返回上一题</button>
+    </div>
+
+    <!-- ============ 结果页 ============ -->
+    <div id="page-result" class="page">
+        <div class="result-head">
+            <h2 class="result-title" id="result-title">狗狗的性格画像</h2>
+        </div>
+
+        <div class="archetype">
+            <div class="archetype-emoji" id="archetype-emoji">🌟</div>
+            <div class="archetype-name" id="archetype-name">加载中…</div>
+            <div class="archetype-tagline" id="archetype-tagline"></div>
+        </div>
+
+        <div class="radar-wrap" id="radar-wrap"></div>
+
+        <div class="dim-section" id="dim-section"></div>
+
+        <div class="analysis-box">
+            <div class="sec-title">关于 TA</div>
+            <p id="analysis-text"></p>
+        </div>
+
+        <div class="advice-box">
+            <div class="sec-title">相处建议</div>
+            <ul class="advice-list" id="advice-list"></ul>
+        </div>
+
+        <div class="disclaimer">
+            <span class="ic">ℹ️</span>
+            <span>本分析由 <b>AI 生成</b>，仅供娱乐参考；如需更严谨的建议，请搜索相关研究或咨询专业兽医 / 训犬师。</span>
+        </div>
+
+        <div class="source-note">问卷来源：A. Jones (2008). Development and validation of a Dog Personality Questionnaire · Corpus ID 147420392</div>
+
+        <div class="cert" id="result-card">
+            <div class="cert-top">🐾 狗狗性格测试</div>
+            <div class="cert-name" id="cert-name"></div>
+            <div class="cert-type" id="cert-type"></div>
+            <div class="cert-bars" id="cert-bars"></div>
+            <div class="cert-foot">
+                <span>DPQ · 45 题短版</span>
+                <span id="cert-date"></span>
+            </div>
+        </div>
+
+        <div class="cert-actions">
+            <button class="btn" onclick="saveCard()">保存卡片</button>
+            <button class="btn sage" onclick="shareResult()">分享结果</button>
+        </div>
+
+        <div class="result-footer">
+            <button class="btn ghost" onclick="location.reload()">重新测试</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- 今日运势弹窗 -->
+<div class="fortune-overlay" id="fortune-overlay" onclick="closeFortune()">
+    <div class="fortune-box" onclick="event.stopPropagation()">
+        <div class="fortune-text" id="fortune-text"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+/* =========================================================
+   数据
+   ========================================================= */
+const IMG = {
+  "1_1.png": "images/asset-003.webp",
+  "1_10.png": "images/asset-004.webp",
+  "1_11.png": "images/asset-005.webp",
+  "1_12.png": "images/asset-006.webp",
+  "1_14.png": "images/asset-007.webp",
+  "1_15.png": "images/asset-008.webp",
+  "1_17.png": "images/asset-009.webp",
+  "1_18.png": "images/asset-010.webp",
+  "1_19.png": "images/asset-011.webp",
+  "1_2.png": "images/asset-012.webp",
+  "1_20.png": "images/asset-013.webp",
+  "1_24.png": "images/asset-014.webp",
+  "1_27.png": "images/asset-015.webp",
+  "1_4.png": "images/asset-016.webp",
+  "1_5.png": "images/asset-017.webp",
+  "1_7.png": "images/asset-018.webp",
+  "1_8.png": "images/asset-019.webp",
+  "1_9.png": "images/asset-020.webp",
+  "1_不知道.png": "images/asset-021.webp",
+  "1_伯恩山.png": "images/asset-022.webp",
+  "1_俄罗斯猎犬.png": "images/asset-023.webp",
+  "1_博美.png": "images/asset-024.webp",
+  "1_可卡.png": "images/asset-025.webp",
+  "1_吉娃娃.png": "images/asset-026.webp",
+  "1_哈士奇.png": "images/asset-027.webp",
+  "1_喜乐蒂.png": "images/asset-028.webp",
+  "1_小小狗.png": "images/asset-029.webp",
+  "1_斑点狗.png": "images/asset-030.webp",
+  "1_杜宾.png": "images/asset-031.webp",
+  "1_松狮.png": "images/asset-032.webp",
+  "1_柯基.png": "images/asset-033.webp",
+  "1_柴犬.png": "images/asset-034.webp",
+  "1_比格.png": "images/asset-035.webp",
+  "1_比熊.png": "images/asset-036.webp",
+  "1_泰迪.png": "images/asset-037.webp",
+  "1_灵缇.png": "images/asset-038.webp",
+  "1_看着凶凶的狗.png": "images/asset-039.webp",
+  "1_腊肠.png": "images/asset-040.webp",
+  "1_萨摩耶.png": "images/asset-041.webp",
+  "1_蝴蝶犬.png": "images/asset-042.webp",
+  "1_西施.png": "images/asset-043.webp",
+  "1_西瓜地.png": "images/asset-044.webp",
+  "1_贵宾.png": "images/asset-045.webp",
+  "1_边牧.png": "images/asset-046.webp",
+  "1_金毛.png": "images/asset-047.webp",
+  "1_金毛2.png": "images/asset-048.webp",
+  "1_阿富汗.png": "images/asset-049.webp",
+  "1_雪纳瑞.png": "images/asset-050.webp",
+  "1_马尔济斯.png": "images/asset-051.webp",
+  "1_骨头.png": "images/asset-052.webp",
+  "1_黑柴.png": "images/asset-053.webp",
+  "查理王-removebg-preview.png": "images/asset-054.webp",
+  "法斗-removebg-preview.png": "images/asset-055.webp",
+  "23题.png": "images/asset-056.webp",
+  "24题.png": "images/asset-057.webp",
+  "25题.png": "images/asset-058.webp",
+  "28题.png": "images/asset-059.webp",
+};
+const illUrl = f => IMG[f];
+const stickerUrl = f => IMG[f];
+
+const questions = [
+    {f:1, r:true,  img:"1_1.png",  t:"{name}在与人打招呼（问候）时表现得放松。"},
+    {f:5, r:false, img:"1_2.png",  t:"{name}对其他狗狗表现出攻击性。"},
+    {f:1, r:false, img:null,     t:"{name}表现出焦虑。"},
+    {f:3, r:true,  img:"1_4.png",  t:"{name}无精打采（懒散、倦怠）。"},
+    {f:4, r:false, img:"1_5.png",  t:"松开牵引绳时，{name}一听到呼唤就立即回来。"},
+    {f:1, r:false, img:null,     t:"{name}很害羞。"},
+    {f:2, r:false, img:"1_7.png",  t:"{name}对陌生人表现出攻击性。"},
+    {f:5, r:false, img:"1_8.png",  t:"{name}喜欢追逐松鼠、鸟类或其他小动物。"},
+    {f:3, r:true,  img:"1_9.png",  t:"{name}在游戏中很快就会感到厌烦。"},
+    {f:4, r:true,  img:"1_10.png", t:"{name}会很快从敞开的门或大门溜出去。"},
+    {f:1, r:true,  img:"1_11.png", t:"{name}很自信。"},
+    {f:5, r:false, img:"1_12.png", t:"{name}对其他狗狗具有支配性。"},
+    {f:1, r:false, img:null,     t:"{name}会躲避其他狗狗。"},
+    {f:3, r:false, img:"1_14.png", t:"{name}会坚持完成任务（如从益智玩具中取出零食、撕咬玩具）直到完全做完。"},
+    {f:3, r:false, img:"1_15.png", t:"{name}很喧闹（闹腾、精力旺盛）。"},
+    {f:1, r:false, img:null,     t:"{name}在看兽医时表现得恐惧。"},
+    {f:3, r:false, img:"1_17.png", t:"{name}喜欢玩玩具。"},
+    {f:2, r:true,  img:"1_18.png", t:"{name}对陌生人很友好。"},
+    {f:5, r:true,  img:"1_19.png", t:"{name}与其他狗狗玩耍时很爱玩。"},
+    {f:3, r:false, img:"1_20.png", t:"{name}会寻求人的陪伴。"},
+    {f:1, r:false, img:null,     t:"{name}在与其他狗狗打招呼（问候）时表现得顺从（如躺倒露出腹部、回避眼神接触、舔嘴唇）。"},
+    {f:1, r:true,  img:null,     t:"{name}很容易适应新情境和新环境。"},
+    {f:5, r:false, img:"23题.png",     t:"{name}喜欢追逐自行车、慢跑者和滑板者。"},
+    {f:3, r:false, img:"24题.png", t:"{name}很好奇。"},
+    {f:2, r:false, img:"25题.png",     t:"{name}在感到来自人的威胁时（如被逼到角落、有人伸手抓项圈）会表现出攻击性。"},
+    {f:3, r:true,  img:null,     t:"{name}很冷漠（疏离）。"},
+    {f:1, r:false, img:"1_27.png", t:"{name}对陌生人表现得恐惧。"},
+    {f:5, r:true,  img:"28题.png",     t:"{name}愿意与其他狗狗分享玩具。"},
+    {f:4, r:true,  img:null,     t:"{name}对纠正的反应很慢。"},
+    {f:2, r:false, img:null,     t:"{name}在看兽医时表现出攻击性。"},
+    {f:3, r:false, img:null,     t:"{name}总是寻求不停的活动。"},
+    {f:4, r:false, img:null,     t:"{name}在被告知时会让食物或物品保持不动（不去碰）。"},
+    {f:3, r:false, img:null,     t:"{name}会叼回物品（如球、玩具、木棍）。"},
+    {f:5, r:true,  img:null,     t:"{name}对其他狗狗很友好。"},
+    {f:1, r:false, img:null,     t:"{name}在被束缚时会表现出恐惧行为。"},
+    {f:2, r:false, img:null,     t:"{name}会攻击性地守护心爱的物品（如偷来的物品、零食、食盆）。"},
+    {f:3, r:false, img:null,     t:"{name}很亲昵（有感情）。"},
+    {f:4, r:true,  img:null,     t:"{name}无视（不听）指令。"},
+    {f:5, r:false, img:null,     t:"{name}对猫表现出攻击性。"},
+    {f:2, r:false, img:null,     t:"{name}在紧张或恐惧时会表现出攻击性。"},
+    {f:3, r:true,  img:null,     t:"{name}倾向于保持平静。"},
+    {f:1, r:false, img:null,     t:"{name}对其他狗狗表现得恐惧。"},
+    {f:4, r:false, img:null,     t:"{name}能在有干扰的情境中（如嘈杂或繁忙的场所、其他狗狗在场时）专注于任务。"},
+    {f:1, r:false, img:null,     t:"{name}在被梳理美容时（如剪指甲、刷毛、洗澡、清洁耳朵）会表现得恐惧。"},
+    {f:5, r:false, img:null,     t:"{name}对其他狗狗表现得很强势或咄咄逼人（例如，家中还有其他狗狗时，在打招呼时）。"},
+];
+
+/* 封面贴纸：全部贴图，size 按真实犬种体型比例配置 */
+const COVER_STICKERS = [
+    {name:"俄罗斯猎犬", file:"1_俄罗斯猎犬.png", size:66},
+    {name:"伯恩山",   file:"1_伯恩山.png", size:64},
+    {name:"灵缇",     file:"1_灵缇.png", size:62},
+    {name:"杜宾",     file:"1_杜宾.png", size:60},
+    {name:"阿富汗",   file:"1_阿富汗.png", size:60},
+    {name:"金毛",     file:"1_金毛.png", size:60},
+    {name:"金毛2",    file:"1_金毛2.png", size:60},
+    {name:"萨摩耶",   file:"1_萨摩耶.png", size:58},
+    {name:"斑点狗",   file:"1_斑点狗.png", size:58},
+    {name:"哈士奇",   file:"1_哈士奇.png", size:56},
+    {name:"松狮",     file:"1_松狮.png", size:54},
+    {name:"边牧",     file:"1_边牧.png", size:54},
+    {name:"看着凶凶的狗", file:"1_看着凶凶的狗.png", size:52},
+    {name:"柴犬",     file:"1_柴犬.png", size:48},
+    {name:"黑柴",     file:"1_黑柴.png", size:48},
+    {name:"比格",     file:"1_比格.png", size:46},
+    {name:"可卡",     file:"1_可卡.png", size:46},
+    {name:"雪纳瑞",   file:"1_雪纳瑞.png", size:46},
+    {name:"柯基",     file:"1_柯基.png", size:44},
+    {name:"贵宾",     file:"1_贵宾.png", size:44},
+    {name:"不知道",   file:"1_不知道.png", size:44},
+    {name:"泰迪",     file:"1_泰迪.png", size:40},
+    {name:"喜乐蒂",   file:"1_喜乐蒂.png", size:40},
+    {name:"法斗",     file:"法斗-removebg-preview.png", size:38},
+    {name:"查理王",   file:"查理王-removebg-preview.png", size:38},
+    {name:"腊肠",     file:"1_腊肠.png", size:36},
+    {name:"博美",     file:"1_博美.png", size:36},
+    {name:"蝴蝶犬",   file:"1_蝴蝶犬.png", size:36},
+    {name:"西施",     file:"1_西施.png", size:36},
+    {name:"比熊",     file:"1_比熊.png", size:34},
+    {name:"马尔济斯", file:"1_马尔济斯.png", size:34},
+    {name:"西瓜地",   file:"1_西瓜地.png", size:34},
+    {name:"吉娃娃",   file:"1_吉娃娃.png", size:32},
+    {name:"小小狗",   file:"1_小小狗.png", size:30},
+];
+
+/* 今日运势（答案之书风格 · 狗狗视角 · 100 条，每次刷新重新分配） */
+const FORTUNES = [
+    "此时此刻，没有什么比一根磨牙棒更值得认真对待。",
+    "答案就在你的脚边，而你正低头看着手机。",
+    "别想明天去哪散步，先专注把地毯上的那一小块阳光占领。",
+    "追逐影子的人，永远抓不住真实的球。",
+    "当你不知道该去哪里时，顺着风的方向去嗅闻草地的秘密。",
+    "最深刻的哲理，往往藏在湿漉漉的鼻尖里。",
+    "不要试图理解门为什么会关上，用力挠它就对了。",
+    "此时的风向正在暗示你：该伸懒腰了。",
+    "复杂的往往不是世界，而是人类脑海里的牵引绳。",
+    "放下那个不存在的敌人，回窝里把尾巴盖在鼻子上。",
+    "只要你转身，世界就缩小成了一个人的客厅。",
+    "守望的最高境界，是听到塑料袋响声的那一秒瞬间清醒。",
+    "你以为你在遛它，其实是它在牵引你的灵魂。",
+    "沉默的陪伴，胜过一万句听不懂的指令。",
+    "当你难过时，把头靠在你的膝盖上就是唯一的答案。",
+    "不要害怕孤独，因为总有一个影子在门后等你回家。",
+    "爱不是占有，是无论你去哪上厕所都要守在门外。",
+    "你们人类总是把简单的事情复杂化，比如离别。",
+    "只要有一张地毯和你的目光，整个宇宙就是一个温暖的狗窝。",
+    "它的世界很小，小到只能装下一个你，以及偶尔路过的邮递员。",
+    "冰箱门响起的时刻，就是奇迹发生的方向。",
+    "每一粒掉在地上的饼干，都是命运给予的意外之财。",
+    "不要对眼前的狗粮失去信心，说不定下一盆有肉。",
+    "真正的富足，是把最爱的玩具藏在谁也找不到的沙发缝里。",
+    "饥饿时闭上眼睛，空气里全都是烤鸡的倒影。",
+    "别在乎热量，快乐的脂肪会让毛发更有光泽。",
+    "贪吃不是一种罪过，是对生活最高形式的致敬。",
+    "骨头之所以美味，是因为它经得起时间的啃咬。",
+    "当你咬住一件东西时，整个世界都会安静下来。",
+    "尝一口草地上的雨水，那是大地写给天空的情书。",
+    "奔跑的梦没有终点，只有不断后退的风景。",
+    "偶尔在睡梦中发出低吼，是因为在和梦里的坏猫战斗。",
+    "完美的睡眠，需要把四只脚毫无防备地朝向天空。",
+    "梦里的飞盘永远不会落地，你也永远不会醒来。",
+    "把下巴垫在前爪上，是对黑夜最温柔的抵抗。",
+    "闭上眼，整个宇宙都是你柔软的垫子。",
+    "打呼噜不是噪音，那是与周遭世界达成和解的节拍。",
+    "翻个身，让另一面的梦境也被阳光晒暖。",
+    "深夜的呜咽，不过是对远方某只同类的模糊思念。",
+    "累了就睡吧，明天太阳升起时，一切都会重新开始。",
+    "泥土的芬芳，是自由最直接的化学式。",
+    "没必要看懂路标，凭直觉走向那棵神秘的大树。",
+    "勇敢一点，去和那只体型比你大三倍的藏獒打个招呼。",
+    "挣脱项圈的瞬间，风会告诉你什么是风。",
+    "墙角的缝隙里，藏着另一个平行宇宙的气味。",
+    "不要害怕雷声，那只是云在生闷气而已。",
+    "盲目的自信，源于你是一只被全家宠爱的修勾。",
+    "试图看懂镜子里的自己，是虚无主义的开始。",
+    "远方除了更多的草地，什么也没有，但这就足够了。",
+    "跳进水坑的那一刻，规则就失效了。",
+    "摇尾巴不是为了讨好，是灵魂在快乐地漏风。",
+    "低垂的耳朵，泄露了你此刻对未知事物的迷茫。",
+    "叹一口气，把今天所有的不开心都吹进空气里。",
+    "打个滚吧，没有什么烦恼是一个满地打滚解决不了的。",
+    "湿漉漉的眼睛里，装满了对这个世界毫无保留的信任。",
+    "委屈时就呜咽两声，人类自然会懂你的委屈。",
+    "没必要去争论谁对谁错，给对方一个亲亲就万事大吉。",
+    "愤怒是暂时的，干饭是永恒的。",
+    "无论今天多么糟糕，一摸头，所有的阴霾都会烟消云散。",
+    "保持单纯，是对这个复杂世界最犀利的嘲讽。",
+    "鼻头渐渐变浅的岁月里，藏着对你更深沉的爱。",
+    "步伐不再轻快时，回忆里全是当年追逐蝴蝶的夏天。",
+    "时间在毛发上留下白霜，却带不走内心的纯真。",
+    "年轻时想跑遍整座城市，老了只想守在你的脚边。",
+    "每一道长出来的白毛，都是岁月写给你的勋章。",
+    "别害怕变老，老去的狗狗会变成星星，在夜空里看着你。",
+    "曾经追不上的那只猫，现在想来也只是风景。",
+    "生命的厚度，不在于你咬坏了多少双拖鞋，而在于你爱了多少回。",
+    "当脚步变得蹒跚，每一次抬头都需要用尽全部的温柔。",
+    "终点并不遥远，它只是化作了你心底永远不会熄灭的微光。",
+    "邮递员每天都来，但他从来没有赢过。",
+    "吸尘器是家里最大的恶龙，必须时刻对它狂吠。",
+    "每一只趴在车窗上的狗，都是一个深沉的思想家。",
+    "为什么不能把头伸出车窗外？因为风有它的形状。",
+    "镜子里的那只狗，其实对你也充满了好奇。",
+    "地毯的中心，是一个永远解不开的神秘旋涡。",
+    "偶尔装作听不懂指令，是智商在进行短暂的度假。",
+    "沙发底下掉落的不仅是玩具，还有失落的时光。",
+    "对着空气狂吠三声，是为了驱赶那些你看不见的怪兽。",
+    "咬坏沙发不是蓄意破坏，那是现代抽象艺术的萌芽。",
+    "相信直觉，尤其是当你想扑向某个人的时候。",
+    "答案就在前方三米处的灌木丛里，去嗅它。",
+    "不要试图去定义自己是一只什么品种，你只是宇宙的宝贝。",
+    "当所有门都关上时，去找那个会给你开罐头的人。",
+    "此时此刻，没有什么比一个深呼吸更能代表臣服。",
+    "你的忠诚不需要被证明，它就在你摇晃的尾巴里。",
+    "世界很大，但你的世界只需要装下今天和爱人。",
+    "放弃挣扎吧，人类是不会让你吃掉那块巧克力的。",
+    "聆听寂静，那是风在替远方的狗传话。",
+    "顺从你的天性：吃、睡、爱、然后奔跑。",
+    "如果生活欺骗了你，不要悲伤，去把那只拖鞋藏起来。",
+    "所有的相遇，都是为了在黄昏的路上并肩散步。",
+    "别在乎别人的眼光，短腿有短腿看世界的独特角度。",
+    "每一个晴天，都是上天专门为你准备的跑道。",
+    "拥抱现在的温度，不要去管明天会不会下雨。",
+    "简单的快乐，就是有一块属于自己的肉干和永远爱你的主人。",
+    "闭上眼，去感受爪垫下大地的脉搏。",
+    "毫无保留地去爱吧，反正人类的生命那么短。",
+    "宇宙的终极奥秘，就藏在你摇晃的那个弧度里。",
+    "汪。",
+];
+
+function shuffle(a){
+    const arr = a.slice();
+    for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+const DIMS = [
+    {key:"brave",  name:"内心松弛度"},
+    {key:"human",  name:"人类亲和力"},
+    {key:"energy", name:"日常能量值"},
+    {key:"learn",  name:"人宠默契度"},
+    {key:"social", name:"同类社交力"},
+];
+
+/* 每个维度的分档解读（参照 DPQ 原始五因子及其 facets 结构） */
+function dimInfo(key, score){
+    const tier = score >= 65 ? 'high' : (score >= 45 ? 'mid' : 'low');
+    const INFO = {
+        brave:{
+            name:"内心松弛度", en:"Fearfulness（恐惧性）反向",
+            brief:"衡量狗狗面对陌生人、新环境、突发声响与日常护理时的情绪稳定与适应程度。",
+            facets:"对人的恐惧 · 对环境的恐惧 · 对狗的恐惧 · 对护理的恐惧",
+            high:{meaning:"分数较高，说明它情绪稳定、安全感充足。在 DPQ「恐惧性」的四个子维度上——对人的恐惧、对环境的非社交性恐惧、对狗的恐惧、对护理操作的恐惧——它都很少表现出夹尾、发抖、退缩或躲藏等恐惧反应。面对陌生人、陌生环境、突发声响等潜在压力源时，它能保持从容，适应力强、可塑性好，更容易接受新事物、从容应对生活中的各种变化，是典型的「安全感十足」的小狗。",
+                  tip:"继续保持规律、可预测的生活作息与正向体验，这是维持情绪稳定的关键。外出时建议循序渐进地接触新刺激，并留意它是否在无意中积累压力——频繁舔唇、打哈欠、回避、身体僵住都是焦虑的早期信号；一旦观察到，应及时降低刺激强度、让它回到舒适区。"},
+            mid:{meaning:"分数居中，说明它大多数时候从容，但在特定情境下会谨慎。对照 DPQ 恐惧性的四个子维度，它往往只在其中一两类情境里敏感：例如陌生环境，或剪指甲、清耳朵等个别护理操作会引发紧张，而适应之后通常能较快放松。整体属于能自我调节、比较省心的类型，但仍存在可进一步巩固安全感的提升空间。",
+                 tip:"针对它敏感的个别情境采用系统脱敏与反条件作用：把恐惧源拆解成极小的步骤，每一步都配合高价值奖励，让它逐渐把「可怕的事」与「好事」关联起来。切忌一次性暴露或强迫，也避免用惩罚，否则容易加重恐惧。"},
+            low:{meaning:"分数偏低，说明它内心敏感、恐惧倾向较高。在 DPQ 恐惧性的四个子维度上，它可能都表现出明显反应：面对陌生人或熟人的靠近、陌生环境与突发声响、其他狗，以及洗澡剪指甲等护理时，可能出现夹尾、发抖、退缩、躲藏甚至逃避或应激。这种高恐惧常与早期社会化不足、遗传易感性或负面经历有关，需要主人给予更多安全感、耐心，以及循序渐进的科学行为训练。",
+                 tip:"采用基于正向强化的系统脱敏与反条件作用，配合缓慢、可预测的暴露节奏；避免任何形式的惩罚（打骂、呵斥只会强化恐惧）。如果恐惧已严重影响生活——如无法出门、抗拒护理或出现攻击——建议尽早咨询行为兽医或 IAABC 认证训犬师，制定个体化方案。"},
+        },
+        human:{
+            name:"人类亲和力", en:"Aggression towards People 反向",
+            brief:"衡量狗狗对人类的友好程度，以及在被限制或受威胁时是否出现防御性攻击。",
+            facets:"对陌生人的主动攻击 · 受威胁时的防御攻击",
+            high:{meaning:"分数较高，说明它对人类信任、友好，攻击倾向很低。在 DPQ「对人攻击性」的两个子维度上——对陌生人的一般攻击、以及被限制或受威胁时的防御性攻击——它都很少表现出攻击行为。无论家人还是第一次见面的客人，它都愿意大方亲近，几乎不会因为陌生、被逼到角落或突然抓项圈而吠叫或咬人。这类狗狗是理想的陪伴对象，尤其适合有孩子或常来客人的家庭。",
+                  tip:"友善不等于没有边界：仍需训练「坐下再打招呼」，避免它因过度热情而扑人，也防止对陌生人毫无保留的亲近带来安全风险。同时要保留它表达不适的权利——若某次互动中它躲开、僵住或走开，应尊重并停止，这是维持它对人类长期信任的基础。"},
+            mid:{meaning:"分数居中，说明它对人总体友善，但边界清晰、亲疏分明。对照 DPQ 的两个子维度，它在正常情况下乐于亲近熟悉的人，但在感到威胁或紧张时——例如被逼到角落、突然抓项圈、陌生人大声靠近——可能出现低吼、龇牙或后退等防御性反应。这类「情境性攻击」更多是自我保护而非主动攻击，提示主人需要更注重互动的可预测性与安全性。",
+                 tip:"避免突然从背后抓它、俯身逼近或强迫抱举，这些动作都可能触发防御反应。让陌生人接触它之前先建立可预测的节奏（侧身、伸手让它先闻）。对儿童尤其要做好引导与监督，教会孩子不打扰正在进食或休息中的它。"},
+            low:{meaning:"分数偏低，说明它对人警惕、防御性强，攻击风险相对较高。在 DPQ 的对人攻击两个子维度上，它可能对陌生人存在主动戒备或攻击，或在被限制、受威胁时出现防御性攻击（低吼、空咬甚至真咬）。这类行为常源于恐惧、早期负面经历或领地意识，本质是它把「攻击」当作保护自己的手段。它需要被尊重距离，并接受专业、系统的行为干预，而非简单惩罚。",
+                 tip:"先做好环境管理、避免触发——远离陌生人、儿童和拥挤场合。由认证训犬师评估并制定基于正向强化的脱敏方案；已出现攻击行为的，务必配合 muzzle 训练并寻求专业协助。切勿自行惩罚，惩罚会加剧恐惧与攻击。"},
+        },
+        energy:{
+            name:"日常能量值", en:"Activity / Excitability",
+            brief:"衡量狗狗的活动水平、兴奋程度，以及对玩耍、探索和与人互动的兴趣。",
+            facets:"兴奋性 · 玩耍性 · 主动参与 · 陪伴性",
+            high:{meaning:"分数较高，说明它精力旺盛、兴奋性高。DPQ 的「活力/兴奋性」包含四个子维度——兴奋性、玩耍性、主动参与、陪伴性，它在这几方面都表现活跃：容易亢奋、爱玩耍、对环境好奇且警觉，也乐于主动找人互动。这类高能量狗狗需要充足的运动量与心智刺激来消耗精力，否则过剩能量很容易转化为拆家、吠叫、追尾或过度兴奋等行为问题。",
+                  tip:"每天保证足够的运动 + 脑力游戏（嗅闻垫、漏食球、寻回、飞盘等），并加入「冲动控制」训练（如等待、松绳散步），这比单纯增加体力消耗更能稳定情绪。运动量应结合品种、年龄与健康情况，避免幼犬期过度运动伤害关节。"},
+            mid:{meaning:"分数居中，说明它动静皆宜，能量分配比较均衡。在活力/兴奋性的四个子维度上，它有适度的玩耍兴趣和活动水平，兴奋与安静之间能自我调节，既不过于懒散也不至于过度亢奋。属于比较容易满足、也容易融入家庭节奏的类型，但也要留意：随着年龄增长、体重或环境变化，它的活动需求会发生改变。",
+                 tip:"维持现有运动与作息即可，重点放在「质量」而非「数量」：每天安排固定的散步与短时互动游戏，观察它对不同活动的偏好，并随年龄、体重和健康情况适时调整运动强度，避免一成不变或突然加量。"},
+            low:{meaning:"分数偏低，说明它性情沉静、活动水平较低。对照 DPQ 的四个子维度，它对玩具和游戏的兴趣有限、兴奋性低、主动探索少，比起奔跑追逐更享受安静的陪伴与打盹。低能量本身并不等于「问题」，它只是节奏更慢；但也需警惕：突然的精力下降可能是肥胖、甲状腺功能低下、慢性疼痛或疾病的表现，应结合体检加以判断。",
+                 tip:"不必勉强它高强度运动，适度散步、嗅闻和陪伴即可。重点是控制体重（低活动犬容易肥胖，进而诱发关节与代谢问题）并保持规律体检。若发现它与往常相比明显更懒、更不愿动，及时就医排查潜在健康问题。"},
+        },
+        learn:{
+            name:"人宠默契度", en:"Responsiveness to Training",
+            brief:"衡量狗狗学习新指令的速度、配合度，以及对主人指令的服从与可控程度。",
+            facets:"可训练性 · 可控性",
+            high:{meaning:"分数较高，说明它训练响应性高、配合度好。DPQ 的「训练响应性」包含两个子维度——可训练性与可控性，它在两方面都表现突出：学习新指令快、注意力集中，即便有干扰也能服从口令，不易偷食或拆家。这类狗狗乐于配合，正向强化对它们效果显著，训练更像是一种享受和与主人互动的机会，是绝佳的「灵魂拍档」。",
+                  tip:"继续用正向强化（食物、玩具、赞美）巩固好行为，并循序渐进增加训练的难度与多样性（如不同环境下的服从练习），以保持它的心智活跃与行为泛化能力。避免长期重复单调训练导致厌倦，也避免过度苛求完美而忽视它的情感需求。"},
+            mid:{meaning:"分数居中，说明它大多数时候愿意配合，但也有自己的小脾气。在可训练性与可控性两个子维度上，它整体学习与服从不错，偶尔会分心或选择性「失聪」，尤其在诱惑大、环境干扰多的时候。这通常是动机不足或训练一致性欠缺，而非「笨」，提示主人需要更有技巧地调动它的学习动机。",
+                 tip:"用更诱人的奖励（高价值零食）和短时高频的训练拉开默契，保持口令清晰一致、全家统一规则。把训练融入游戏（如寻回、捉迷藏）以提升动机，避免与它「较劲」或反复无效地重复口令——这会削弱口令的权威性。"},
+            low:{meaning:"分数偏低，说明它很有主见、相对我行我素，训练响应性较弱。在可训练性与可控性两个子维度上，它可能学习较慢、容易把指令当耳旁风，或难以服从控制（如偷食、拆家、唤回困难）。这更多反映它的独立性与动机结构，而非智力低下；某些工作犬或原始犬种本身就具有更强的自主性，需要更有创意、更贴合其天性的训练方式。",
+                 tip:"训练以短时高频、正向奖励为主，把训练变成游戏，并管理好环境（减少它犯错、得到「自我奖励」的机会）。优先解决安全和唤回这类关键技能，用高价值奖励建立牢固的条件反射。若问题行为持续，可寻求认证训犬师做个体评估。"},
+        },
+        social:{
+            name:"同类社交力", en:"Aggression towards Animals 反向",
+            brief:"衡量狗狗对其他狗的友好/攻击程度、对小动物的捕猎驱力，以及在狗群中的支配性。",
+            facets:"对狗的攻击 · 捕猎驱力 · 对狗的支配性",
+            high:{meaning:"分数较高，说明它对同类友好、社交力强。DPQ 的「对动物攻击性」包含三个子维度——对狗的攻击、捕猎驱力、对狗的支配性，它在这三方面都表现温和：对其他狗友好大方、乐于分享、不争抢不强势，也较少追逐攻击猫、松鼠等小动物。这类狗狗通常能享受群体玩耍的乐趣，适合去狗狗公园或有同伴的家庭环境。",
+                  tip:"社交虽好，仍需注意卫生与疫苗，并观察它在狗群中的真实体验——即便友好的狗也可能在密集或强势的狗群中感到压力。保留它喜欢的玩伴、避免强迫与不投缘的狗相处，能让它的社交长期保持在积极、低压的状态。"},
+            mid:{meaning:"分数居中，说明它对同伴总体友善，但有自己的社交偏好。对照三个子维度，它在正常情况下不排斥其他狗，但会有选择地交往，或在资源与地位上偶尔表现出一些小坚持（如护食、护玩具、轻微争抢）。这属于犬类正常的社交边界表达，提示主人在多狗互动中要更注重资源管理与公平性。",
+                 tip:"尊重它的社交偏好，不必强迫它与不喜欢的狗相处。多狗家庭中做好资源管理（分盆喂食、玩具充足、避免争抢），观察并温和引导护食、护资源倾向。若护资源升级为攻击，及时寻求训犬师评估，切勿用惩罚处理。"},
+            low:{meaning:"分数偏低，说明它领地意识与攻击倾向较强。在 DPQ 的三个子维度上，它可能对其他狗表现出攻击或支配行为，或对小动物有较强的追逐、捕猎冲动，也更倾向守护自己的空间与资源。这类行为既可能是遗传（如某些护卫犬、梗犬、猎犬的基因倾向），也可能与早期社交不足或负面经历有关，需要谨慎的社交管理与专业引导。",
+                 tip:"牵引时留意它对小型动物的追逐冲动，避开拥挤狗群；尊重它的领地感与资源，做好环境管理。若已出现对其他狗的攻击，务必由认证训犬师评估并制定行为方案，必要时配合 muzzle 训练；对猫等伴侣动物需做严格的分离管理。"},
+        },
+    };
+    const d = INFO[key];
+    return {name:d.name, en:d.en, brief:d.brief, facets:d.facets, score, meaning:d[tier].meaning, tip:d[tier].tip};
+}
+
+/* 性格原型（仅基于测试结果） */
+const ARCHETYPES = [
+    {title:"草地交际花", emoji:"🌼",
+     tagline:"走到哪交到哪，公园里没有它不认识的小伙伴。",
+     analysis:"对人友善、对同类热情，性格外向大方，是天生的社交小明星。它把善意当作默认选项，走到哪儿都能交到朋友。",
+     advice:["外出时训练「坐下再打招呼」，避免过度扑人扑狗。","社交虽好，也要留意卫生与疫苗。","适当给它一点独处时间，学会自娱自乐。"]},
+    {title:"快乐永动机", emoji:"🚀",
+     tagline:"永远不知疲倦，身体里像装了一台小马达。",
+     analysis:"精力爆表、好奇心旺盛，每天都在寻找新的乐子，是家里的快乐源泉。它需要足够的运动与脑力消耗。",
+     advice:["每天保证充足运动 + 脑力游戏，让能量有出口。","多安排嗅闻、寻回等「任务」消耗精力。","训练宜短时高频，奖励要跟上。"]},
+    {title:"满分伴读生", emoji:"🎓",
+     tagline:"一个眼神就能读懂你的指令，绝佳的灵魂拍档。",
+     analysis:"专注、聪慧、乐于配合，你们之间有着极高的默契。学习对它是种乐趣而非负担。",
+     advice:["用正向强化继续开发它的天赋。","多玩益智游戏，别浪费这份聪明。","规律训练能帮它保持情绪稳定。"]},
+    {title:"敏感小黏糕", emoji:"☁️",
+     tagline:"外面的世界太喧嚣，窝在你怀里最安心。",
+     analysis:"内心敏感、容易紧张，但对信任的人格外黏人，需要更多安全感与耐心。",
+     advice:["用缓慢脱敏 + 大量奖励帮它建立信心。","切忌强迫它直面恐惧源。","规律作息与稳定陪伴能减少它的焦虑。"]},
+    {title:"专属冷面护卫", emoji:"🛡️",
+     tagline:"对外人高冷、对同类戒备，温柔只留给你。",
+     analysis:"边界感强、警惕心高，不容易交付信任，却把全部的忠诚与温柔都留给了你。",
+     advice:["尊重它的距离感，别强迫亲近陌生人。","社会化要循序渐进、正向引导。","建立「你说了算」的安全感，避免护食升级。"]},
+    {title:"孤傲独行侠", emoji:"🐺",
+     tagline:"有自己的精神世界，气场强大、独来独往。",
+     analysis:"独立、自信、领地意识强，喜欢按自己的节奏生活。它慢热，但一旦信任你便非常专一。",
+     advice:["给它足够的自主空间，别事事都管。","自由奔跑能满足它的天性。","耐心建立信任，别急着要求亲近。"]},
+    {title:"佛系养老家", emoji:"🍵",
+     tagline:"看淡狗生，更享受午后的阳光与打盹。",
+     analysis:"性情沉静、慢条斯理，比起奔跑追逐，更喜欢安静的陪伴。安静也渴望被爱。",
+     advice:["不必勉强它高强度运动，适度散步即可。","留意体重，沉静的小狗容易胖。","多抱抱它、陪它说说话。"]},
+    {title:"宝藏小天使", emoji:"🌟",
+     tagline:"性格平衡又独特，是你生命中独一无二的可爱存在。",
+     analysis:"各项特质较为均衡，情绪稳定、适应力强，是只让人省心的宝藏小狗。",
+     advice:["保持规律的作息与正向互动。","继续用爱与耐心陪伴它成长。","享受与它相处的每一天。"]},
+];
+
+function matchLegacyArchetype(user){
+    const [brave, human, energy, learn, social] = user;
+    if (human>=60 && social>=60 && energy>=55) return ARCHETYPES[0];
+    if (energy>=75) return ARCHETYPES[1];
+    if (learn>=75 && human>=55) return ARCHETYPES[2];
+    if (brave<45 && human>=60) return ARCHETYPES[3];
+    if (human<50 && social<50 && brave<60) return ARCHETYPES[4];
+    if (human<45 && social<45 && brave>=60) return ARCHETYPES[5];
+    if (energy<=45 && brave>=50) return ARCHETYPES[6];
+    return ARCHETYPES[7];
+}
+
+/* 五因子三档组合原型：27 个基础气质 × 9 个相处方式 = 243 种 */
+const BASE_ARCHETYPE_NAMES = [
+    [['阳光领队','温暖伙伴','温柔陪伴者'],['自信探险家','稳稳观察员','慢步旅人'],['边界护卫','安全守门员','独处旅人']],
+    [['慢热外交官','温和来客','安稳陪伴者'],['适应探险家','平衡观察员','慢节奏旅人'],['警觉行动者','谨慎守卫','低调守望者']],
+    [['敏感小太阳','敏感贴心者','云朵陪伴者'],['紧张探险家','小心适应者','安静敏感者'],['警戒风暴','敏感守门员','小心隐士']]
+];
+const INTERACTION_ARCHETYPE_NAMES = [
+    ['乐于配合、喜欢社交的','乐于配合、会挑伙伴的','乐于配合、偏爱独处的'],
+    ['需要鼓励、喜欢社交的','保留主见、会挑伙伴的','保留主见、偏爱独处的'],
+    ['自主性强、喜欢社交的','自主性强、会挑伙伴的','自主性强、偏爱独处的']
+];
+const ARCHETYPE_EMOJIS = ['🌼','☀️','🐾','🧭','☁️','🛡️','🍵','🌙','✨'];
+
+function archetypeTier(score){ return score >= 65 ? 0 : (score >= 45 ? 1 : 2); }
+function generatedArchetype(user){
+    const [brave,human,energy,learn,social] = user;
+    const tiers = [brave,human,energy,learn,social].map(archetypeTier);
+    const base = BASE_ARCHETYPE_NAMES[tiers[0]][tiers[1]][tiers[2]];
+    const interaction = INTERACTION_ARCHETYPE_NAMES[tiers[3]][tiers[4]];
+    const infos = DIMS.map((dim,i)=>dimInfo(dim.key,user[i]));
+    const low = tiers.indexOf(2);
+    const focus = low >= 0 ? infos[low] : infos[3];
+    return {
+        title: interaction + base,
+        titleTop: interaction,
+        titleBottom: base,
+        emoji: ARCHETYPE_EMOJIS[(tiers[2]*3 + tiers[0] + tiers[4]) % ARCHETYPE_EMOJIS.length],
+        tagline: tiers[4] === 0 ? '它愿意主动建立连接，也能在互动中获得满足。'
+            : (tiers[4] === 1 ? '它有自己的社交偏好，会选择合得来的伙伴。' : '它更重视自己的空间，熟悉和信任需要时间。'),
+        analysis: infos.map(info=>info.brief).join(' '),
+        advice: [focus.tip, infos[(low + 1) % infos.length].tip, infos[(low + 2) % infos.length].tip]
+    };
+}
+
+function matchArchetype(user){ return generatedArchetype(user); }
+
+/* =========================================================
+   状态
+   ========================================================= */
+let dogName = "";
+let currentQ = 0;
+const scores = new Array(45).fill(null);
+let pendingUser = null;
+let profileData = {};
+let turnstileToken = '';
+function onTurnstileSuccess(token){ turnstileToken = token || ''; }
+function onTurnstileExpired(){ turnstileToken = ''; }
+function onTurnstileError(){ turnstileToken = ''; toast('验证组件加载失败，请刷新页面后重试'); }
+
+const DOG_BREEDS = `阿富汗猎犬 阿拉斯加雪橇犬 阿拉斯加克利凯犬 爱尔兰梗 爱尔兰红白雪达犬 爱尔兰水猎犬 爱尔兰峡谷梗 爱尔兰猎狼犬 艾芬品犬 艾瑞代尔梗 安纳托利亚牧羊犬 奥地利黑褐猎犬 奥地利平斯彻犬 奥地利短毛品犬 奥达猎犬 巴吉度猎犬 巴仙吉犬 巴贝犬 巴伐利亚山地猎犬 巴西菲勒犬 巴西梗 巴西獒犬 白瑞士牧羊犬 白色瑞士牧羊犬 白色雪纳瑞犬 白梗 白俄罗斯猎犬 白俄罗斯牧羊犬 百慕大猎犬 贝灵顿梗 贝林顿梗 贝加马斯卡牧羊犬 贝尔格里芬凡丁犬 贝尔吉牧羊犬 贝尔吉马利诺犬 贝尔吉特伏丹犬 贝生吉犬 比格犬 比利猎犬 比利时拉坎诺犬 比利时马林诺犬 比利时牧羊犬 比利时特伏丹犬 比熊犬 边境梗 边境牧羊犬 波尔多犬 波兰低地牧羊犬 波兰猎犬 波兰平原牧羊犬 波利犬 波萨维猎犬 伯恩山犬 伯瑞犬 博得猎狐梗 博伊金猎犬 博美犬 博美拉尼亚犬 博美拉尼亚牧羊犬 博洛尼亚比熊犬 博美梗 布列塔尼猎犬 布鲁塞尔格里芬犬 布鲁诺汝拉猎犬 布鲁塞尔粗毛猎犬 布鲁斯獒犬 布鲁克林猎犬 布偶犬 卡斯罗犬 卡南犬 卡累利阿熊犬 卡那利犬 卡斯特罗拉博雷罗犬 柴犬 长须柯利犬 长毛腊肠犬 长毛德国牧羊犬 长毛吉娃娃 长毛惠比特犬 长毛牧羊犬 长毛秋田犬 查理王小猎犬 车萨皮克湾寻回犬 城市猎犬 德国宾莎犬 德国短毛指示犬 德国刚毛指示犬 德国猎梗 德国牧羊犬 德国平毛指示犬 德国拳师犬 德国硬毛指示犬 德国猎犬 德国小型狐狸犬 德国小型斯皮茨犬 德国雪纳瑞犬 德国硬毛腊肠犬 德国长毛指示犬 斗牛梗 斗牛獒犬 都柏文犬 都柏曼犬 杜宾犬 东欧牧羊犬 法斗 法国斗牛犬 法国獒犬 法老王猎犬 芬兰拉普猎犬 芬兰猎犬 芬兰斯皮茨犬 芬兰猎犬 芬兰牧羊犬 佛兰德牧牛犬 富利犬 刚毛腊肠犬 哥顿雪达犬 哥斯达黎加梗 格陵兰犬 格罗安达牧羊犬 格里芬尼韦奈犬 格雷伊猎犬 古代英国牧羊犬 哈瓦那犬 哈利犬 哈萨克牧羊犬 哈士奇 汉密尔顿猎犬 汉诺威猎犬 荷兰毛狮犬 荷兰牧羊犬 荷兰斯姆茨洪德犬 荷兰小型水猎犬 黑褐猎浣熊犬 黑俄罗斯梗 黑嘴犬 赫尔达猎犬 赫根猎犬 红骨猎浣熊犬 红白爱尔兰雪达犬 红色可卡犬 湖畔梗 蝴蝶犬 华莱士猎犬 惠比特犬 加纳利犬 加斯科涅蓝猎犬 杰克罗素梗 金毛寻回犬 金毛猎犬 金毛犬 金属梗 京巴犬 京巴猎犬 凯安梗 凯利蓝梗 凯斯梗 凯斯犬 凯利蓝梗 凯利蓝猎犬 凯斯顿梗 柯基犬 柯基 卡迪根威尔士柯基犬 卡斯特罗拉博雷罗犬 可卡犬 可蒙犬 凯恩梗 凯利蓝梗 科泰克犬 克伦伯猎犬 库瓦兹犬 拉布拉多寻回犬 拉布拉多犬 拉萨犬 拉萨阿普索犬 拉戈托罗马阁挪露犬 兰西尔犬 腊肠犬 猎狐梗 猎水獭犬 猎兔犬 猎浣熊犬 利昂贝格犬 罗得西亚脊背犬 罗秦犬 罗威纳犬 路易斯安那豹犬 马尔济斯犬 马犬 马雷马牧羊犬 马略卡獒犬 马士提夫獒犬 马尔他犬 曼彻斯特梗 迷你贝吉格里芬凡丁犬 迷你杜宾犬 迷你美洲牧羊犬 迷你雪纳瑞犬 迷你腊肠犬 蒙特内哥罗山地猎犬 蒙古牧羊犬 美国爱斯基摩犬 美国比特斗牛犬 美国斗牛犬 美国猎狐犬 美国水猎犬 美国斯塔福梗 美国无毛梗 美国玩具猎狐梗 美国原住民犬 美国豹犬 墨西哥无毛犬 挪威布哈德犬 挪威伦德猎犬 挪威猎麋犬 挪威牧羊犬 挪威梗 诺福克梗 诺里奇梗 纽芬兰犬 帕尔森罗塞尔梗 帕米尔牧羊犬 帕森罗塞尔梗 帕提谷犬 彭布罗克威尔士柯基犬 皮卡第猎犬 皮卡第牧羊犬 平毛寻回犬 平毛猎犬 平斯彻犬 葡萄牙波登可犬 葡萄牙水犬 葡萄牙指示犬 普利犬 普罗特猎犬 奇努克犬 骑士查理王小猎犬 切萨皮克湾寻回犬 秋田犬 日本秋田犬 日本尖嘴犬 日本狆 日本梗 瑞典拉普猎犬 瑞典瓦汉德犬 瑞士白牧犬 瑞士短毛猎犬 瑞士猎犬 瑞士山地犬 瑞士牧羊犬 萨摩耶犬 萨路基犬 萨塞克斯猎犬 三色猎犬 沙皮犬 沙克犬 山地柯利犬 上加利福尼亚牧羊犬 设得兰牧羊犬 苏格兰梗 苏格兰猎鹿犬 苏格兰牧羊犬 苏俄牧羊犬 斯凯梗 斯洛伐克猎犬 斯洛伐克硬毛指示犬 斯洛伐克库瓦兹犬 斯洛文尼亚猎犬 斯塔福郡斗牛梗 斯塔福梗 斯塔比荷犬 西班牙水犬 西班牙獒犬 西伯利亚哈士奇 西高地白梗 西西里猎犬 西帕基犬 西施犬 西藏猎犬 西藏梗 西藏獒犬 西藏牧羊犬 喜乐蒂牧羊犬 匈牙利库瓦兹犬 匈牙利牧羊犬 匈牙利维兹拉犬 匈牙利短毛指示犬 匈牙利硬毛指示犬 小鹿犬 小型贝吉格里芬凡丁犬 小型宾莎犬 小型斗牛梗 小型美洲牧羊犬 小型雪纳瑞犬 小型腊肠犬 小型意大利灵缇犬 小型梗 小型狮子犬 小型史宾格犬 新斯科舍鸭猎犬 新几内亚歌唱犬 新西兰亨特威犬 新爱尔兰猎犬 雪纳瑞犬 雪橇犬 寻血猎犬 牙买加猎犬 雅库特莱卡犬 亚平宁猎犬 亚伯达牧羊犬 约克夏梗 约克夏犬 意大利布拉可犬 意大利灰狗 意大利灵缇犬 意大利卡斯罗犬 意大利斯皮诺犬 英国斗牛犬 英国猎狐犬 英国塞特犬 英国玩具猎犬 英国小猎犬 英国雪达犬 英国指示犬 英国可卡犬 英国史宾格犬 英国牧羊犬 英国古代牧羊犬 英格兰猎狐犬 英格兰雪达犬 英格兰史宾格犬 英格兰可卡犬 英格兰玩具梗 英格兰玩具猎犬 英国獒犬 英国斗牛梗 英国猎浣熊犬 英国玩具梗 硬毛腊肠犬 硬毛指示格里芬犬 优雅猎犬 约克夏梗 犹他牧羊犬 波音达犬 指示犬 中亚牧羊犬 中国冠毛犬 中国田园犬 中华田园犬 中国沙皮犬 中国冠毛犬 中国细犬 中国藏獒 重庆犬 中型雪纳瑞犬 中型贵宾犬 中型狐狸犬 中华猎犬 周猎犬 俄罗斯猎狼犬 俄罗斯黑梗 俄罗斯玩具犬 俄罗斯南方牧羊犬 斑点犬 大麦町犬 大丹犬 大白熊犬 大瑞士山地犬 大型贵宾犬 大型雪纳瑞犬 大型旺代格里芬犬 大型德国狐狸犬 大型意大利灵缇犬 德文郡梗 比熊 弗里斯兰水犬 高加索牧羊犬 高加索犬 古牧 冠毛犬 贵宾犬 贵妇犬 标准贵宾犬 玩具贵宾犬 迷你贵宾犬 哈士奇 哈巴狗 巴哥犬 巴仙吉 吉娃娃 迷你品犬 比特犬 边牧 金毛 拉布拉多 罗威纳 马犬 牧羊犬 萨摩耶 沙皮 梗犬 泰迪 田园犬 土狗 雪橇犬 阿拉斯加犬 柯基犬 柴犬 松狮犬 松狮 小体比熊 纽芬兰 萨路基 灵缇 犬类混血 混血犬` .split(/\s+/);
+const CONCERNS = ['爆冲（牵引时拉扯）','吠叫','对人有攻击性','对其他狗有攻击性','拆家／乱咬东西','扑人','护食／护玩具','分离焦虑','害怕陌生人','害怕其他狗','社会化训练','基础服从（坐、卧、等待、召回等）','精力过于旺盛','不愿意出门','饮食／挑食','体重管理','暂时没有特别困扰的问题','其他'];
+const LEARNING_CHANNELS = ['小红书','抖音','B站','微信群','微信公众号','ChatGPT / Claude 等 AI','搜索引擎（百度 / Google）','宠物医院','训练师','朋友','国外网站','书籍','其他'];
+const SOURCES = ['小红书','微信群','抖音','B站','搜索引擎','朋友分享','社群/论坛','其他'];
+
+function makeChoices(containerId, name, items, type='checkbox'){
+    const box = document.getElementById(containerId);
+    box.innerHTML = '';
+    items.forEach(item=>{
+        const label = document.createElement('label');
+        label.className = 'choice ' + (type === 'radio' ? 'radio' : '');
+        const input = document.createElement('input');
+        input.type = type; input.name = name; input.value = item;
+        const span = document.createElement('span'); span.textContent = item;
+        label.append(input, span); box.appendChild(label);
+    });
+}
+
+function checkedValues(name){
+    return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(input=>input.value);
+}
+
+function setInlineOther(name, inputId){
+    const field = document.getElementById(inputId);
+    field.classList.toggle('show', checkedValues(name).includes('其他'));
+}
+
+function renderPrimaryConcerns(){
+    const selected = checkedValues('concern');
+    const section = document.getElementById('primary-concern-section');
+    const options = document.getElementById('primary-concern-options');
+    const previous = document.querySelector('input[name="primary-concern"]:checked')?.value;
+    const noConcern = selected.includes('暂时没有特别困扰的问题');
+    const displayItems = selected.map(item=> item === '其他'
+        ? (document.getElementById('concern-other').value.trim() ? `其他：${document.getElementById('concern-other').value.trim()}` : '其他')
+        : item);
+    section.hidden = noConcern || !displayItems.length;
+    options.innerHTML = '';
+    if(section.hidden) return;
+    displayItems.forEach(item=>{
+        const label = document.createElement('label'); label.className = 'choice radio';
+        const input = document.createElement('input'); input.type = 'radio'; input.name = 'primary-concern'; input.value = item;
+        if(item === previous) input.checked = true;
+        const span = document.createElement('span'); span.textContent = item;
+        label.append(input, span); options.appendChild(label);
+    });
+}
+
+function updateLearningLimit(){
+    const selected = checkedValues('learning');
+    document.getElementById('learning-limit').textContent = `已选择 ${selected.length} / 5 项`;
+    setInlineOther('learning','learning-other');
+}
+
+function initializeProfile(){
+    const years = document.getElementById('dog-age-years');
+    const months = document.getElementById('dog-age-months');
+    years.add(new Option('选择岁数',''));
+    for(let i=0;i<=30;i++) years.add(new Option(String(i),String(i)));
+    years.add(new Option('30 岁以上','31+'));
+    months.add(new Option('选择月数',''));
+    for(let i=0;i<12;i++) months.add(new Option(String(i),String(i)));
+
+    const breeds = document.getElementById('breed-list');
+    [...new Set(DOG_BREEDS)].forEach(breed=>breeds.appendChild(new Option(breed)));
+    makeChoices('concern-options','concern',CONCERNS);
+    makeChoices('learning-options','learning',LEARNING_CHANNELS);
+    makeChoices('source-options','source',SOURCES,'radio');
+
+    document.querySelectorAll('input[name="breed-status"]').forEach(input=>input.addEventListener('change',()=>{
+        const other = input.value === '其他' && input.checked;
+        document.getElementById('dog-breed-other').classList.toggle('show',other);
+        if(input.checked && input.value === '不确定') document.getElementById('dog-breed').value = '不确定';
+    }));
+    document.getElementById('concern-options').addEventListener('change',()=>{
+        setInlineOther('concern','concern-other'); renderPrimaryConcerns();
+    });
+    document.getElementById('concern-other').addEventListener('input',renderPrimaryConcerns);
+    document.getElementById('learning-options').addEventListener('change',event=>{
+        if(checkedValues('learning').length > 5){
+            event.target.checked = false;
+            toast('最多可选择 5 项学习渠道哦');
+        }
+        updateLearningLimit();
+    });
+    document.getElementById('source-options').addEventListener('change',()=>setInlineOther('source','source-other'));
+    document.querySelectorAll('input[name="beta-test"]').forEach(input=>input.addEventListener('change',()=>{
+        document.getElementById('profile-contact').classList.toggle('show',input.checked && input.value === '愿意');
+    }));
+    updateLearningLimit();
+}
+
+function selectedValue(name){ return document.querySelector(`input[name="${name}"]:checked`)?.value || ''; }
+
+function validateProfile(){
+    const missing = [];
+    if(!document.getElementById('dog-age-years').value || !document.getElementById('dog-age-months').value) missing.push('1. 狗狗年龄');
+    const breedStatus = selectedValue('breed-status');
+    const breed = document.getElementById('dog-breed').value.trim();
+    const breedOther = document.getElementById('dog-breed-other').value.trim();
+    if(!breed && !breedStatus) missing.push('2. 狗狗品种');
+    if(breedStatus === '其他' && !breedOther) missing.push('2. 狗狗品种（其他）');
+    if(!selectedValue('dog-sex')) missing.push('3. 狗狗性别');
+    if(!selectedValue('neutered')) missing.push('4. 是否绝育');
+    if(!selectedValue('first-dog')) missing.push('5. 是否第一次养狗');
+    const concerns = checkedValues('concern');
+    if(!concerns.length) missing.push('6. 希望改善的方面');
+    if(!document.getElementById('primary-concern-section').hidden && !selectedValue('primary-concern')) missing.push('7. 最想解决的问题');
+    if(!checkedValues('learning').length) missing.push('8. 学习养狗知识的渠道');
+    if(!selectedValue('source')) missing.push('10. 来到测试页面的渠道');
+    if(selectedValue('source') === '其他' && !document.getElementById('source-other').value.trim()) missing.push('10. 来源渠道（其他）');
+    const beta = selectedValue('beta-test');
+    if(!beta) missing.push('11. 是否参与内测');
+    const contact = ['contact-wechat','contact-email','contact-phone'].some(id=>document.getElementById(id).value.trim());
+    if(beta === '愿意' && !contact) missing.push('12. 联系方式（至少填写一个）');
+    if(missing.length){
+        toast('请先完成：' + missing.join('、'));
+        const firstMissing = missing[0];
+        const target = document.querySelector('.profile-section');
+        if(firstMissing) document.querySelectorAll('.profile-q').forEach(q=>{
+            if(q.textContent.includes(firstMissing.split('.')[0] + '.')) q.closest('.profile-section')?.scrollIntoView({behavior:'smooth',block:'center'});
+        });
+        return false;
+    }
+    return true;
+}
+
+const SUPABASE_CONFIG = {
+    functionUrl: 'https://fifpzokiwvscfbjkibgc.supabase.co/functions/v1/submit-test-result'
+};
+
+function scoreTier(score){
+    return score >= 65 ? '高' : (score >= 45 ? '中' : '低');
+}
+
+async function saveResultToSupabase(user, profile){
+    if(!user || !profile) return;
+    const token = (window.turnstile && typeof window.turnstile.getResponse === 'function'
+        ? window.turnstile.getResponse() : turnstileToken) || '';
+    if(!token){ toast('请先完成安全验证'); return; }
+    const arch = generatedArchetype(user);
+    const payload = {
+        dog_name: (document.getElementById('dogNameInput')?.value || '').trim() || '未命名狗狗',
+        age_years: profile.age.years === '' ? null : Number(profile.age.years),
+        age_months: profile.age.months === '' ? null : Number(profile.age.months),
+        breed: profile.breed || null, sex: profile.sex || null,
+        neutered: profile.neutered || null, first_dog: profile.firstDog || null,
+        concerns: profile.concerns || [], primary_concern: profile.primaryConcern || null,
+        learning_channels: profile.learningChannels || [],
+        assistant_wish: profile.assistantWish || null, source: profile.source || null,
+        beta_test: profile.betaTest || null,
+        contact_wechat: profile.contact.wechat || null, contact_email: profile.contact.email || null,
+        contact_phone: profile.contact.phone || null,
+        brave_score: user[0], human_score: user[1], energy_score: user[2],
+        learn_score: user[3], social_score: user[4],
+        brave_tier: scoreTier(user[0]), human_tier: scoreTier(user[1]),
+        energy_tier: scoreTier(user[2]), learn_tier: scoreTier(user[3]),
+        social_tier: scoreTier(user[4]), type: arch.title
+    };
+    try{
+        const response = await fetch(SUPABASE_CONFIG.functionUrl, {
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token, data:payload})
+        });
+        if(!response.ok){
+            const detail = await response.text();
+            throw new Error(`保存失败（${response.status}）${detail ? '：' + detail : ''}`);
+        }
+    }catch(error){ console.warn('Edge Function 保存失败:', error); toast(error.message || '保存失败，请稍后重试'); }
+}
+
+function submitProfile(){
+    turnstileToken = (window.turnstile && typeof window.turnstile.getResponse === 'function'
+        ? window.turnstile.getResponse() : turnstileToken) || '';
+    if(!turnstileToken){ toast('请先完成安全验证'); return; }
+    const beta = selectedValue('beta-test');
+    const contact = {
+        wechat:document.getElementById('contact-wechat').value.trim(),
+        email:document.getElementById('contact-email').value.trim(),
+        phone:document.getElementById('contact-phone').value.trim()
+    };
+    if(!validateProfile()) return;
+    const concernChoices = checkedValues('concern').map(item=> item === '其他'
+        ? (document.getElementById('concern-other').value.trim() || '其他') : item);
+    const learningChoices = checkedValues('learning').map(item=> item === '其他'
+        ? (document.getElementById('learning-other').value.trim() || '其他') : item);
+    const source = selectedValue('source');
+    profileData = {
+        age:{years:document.getElementById('dog-age-years').value, months:document.getElementById('dog-age-months').value},
+        breed:selectedValue('breed-status') === '其他' ? document.getElementById('dog-breed-other').value.trim() : (document.getElementById('dog-breed').value.trim() || selectedValue('breed-status')),
+        sex:selectedValue('dog-sex'), neutered:selectedValue('neutered'), firstDog:selectedValue('first-dog'),
+        concerns:concernChoices, primaryConcern:selectedValue('primary-concern'), learningChannels:learningChoices,
+        assistantWish:document.getElementById('assistant-wish').value.trim(),
+        source:source === '其他' ? (document.getElementById('source-other').value.trim() || '其他') : source,
+        betaTest:beta, contact
+    };
+    window.dogProfile = profileData;
+    if(pendingUser){
+        saveResultToSupabase(pendingUser, profileData);
+        renderResult(pendingUser);
+    }
+}
+
+function backToLastQuestion(){
+    pendingUser = null;
+    switchPage('page-quiz');
+    renderQuestion();
+}
+
+/* =========================================================
+   封面
+   ========================================================= */
+let _fortunes = [];
+function renderCover(){
+    const layer = document.getElementById('sticker-layer');
+    layer.innerHTML = '';
+    _fortunes = shuffle(FORTUNES);
+    const W = layer.clientWidth || 400;
+    let H = layer.clientHeight;
+    if (!H || H < 100) H = Math.max(260, Math.round(window.innerHeight * 0.45));
+
+    // 初始化：随机落点
+    const nodes = COVER_STICKERS.map(s => {
+        const w = s.size;
+        const h = Math.round(s.size * 1.25);
+        const r = Math.max(w, h) / 2;
+        return { s, w, h, r, x: 0, y: 0 };
+    });
+    nodes.forEach(n => {
+        n.x = 4 + Math.random() * Math.max(1, W - n.w - 8);
+        n.y = 4 + Math.random() * Math.max(1, H - n.h - 8);
+    });
+
+    // 斥力迭代：像同极磁铁一样相互排斥，直到互不重叠
+    for (let it = 0; it < 600; it++) {
+        let maxOverlap = 0;
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const a = nodes[i], b = nodes[j];
+                let dx = b.x - a.x, dy = b.y - a.y;
+                let dist = Math.hypot(dx, dy);
+                const min = a.r + b.r;
+                if (dist < min) {
+                    const overlap = min - dist;
+                    if (overlap > maxOverlap) maxOverlap = overlap;
+                    if (dist < 0.01) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; dist = Math.hypot(dx, dy) || 1; }
+                    const ux = dx / dist, uy = dy / dist;
+                    const push = overlap * 0.5;
+                    a.x -= ux * push; a.y -= uy * push;
+                    b.x += ux * push; b.y += uy * push;
+                }
+            }
+        }
+        // 边界约束：拉回容器内
+        nodes.forEach(n => {
+            n.x = Math.max(2, Math.min(W - n.w - 2, n.x));
+            n.y = Math.max(2, Math.min(H - n.h - 2, n.y));
+        });
+        if (maxOverlap < 0.5) break;
+    }
+
+    nodes.forEach((n, i) => {
+        const s = n.s;
+        const el = document.createElement('div');
+        el.className = 'sticker';
+        el.style.left = n.x + 'px';
+        el.style.top = n.y + 'px';
+        el.style.width = s.size + 'px';
+        const rot = (Math.random() * 24) - 12;
+        el.style.transform = 'rotate(' + rot + 'deg)';
+        el._rot = rot;
+        el._x = 0; el._y = 0;
+        el._name = s.name;
+        el._fortune = _fortunes[i % _fortunes.length];
+        el.innerHTML = `<img src="${stickerUrl(s.file)}" alt="${s.name}" draggable="false">`;
+        layer.appendChild(el);
+        bindDrag(el);
+    });
+}
+
+function bindDrag(el){
+    let st = null;
+    el.addEventListener('pointerdown', e=>{
+        if(e.button !== undefined && e.button !== 0) return;
+        e.preventDefault();
+        st = {sx:e.clientX, sy:e.clientY, ox:el._x||0, oy:el._y||0, moved:false};
+        el.classList.add('lifting');
+        el.classList.remove('settling');
+        try{ el.setPointerCapture(e.pointerId); }catch(_){}
+    });
+    el.addEventListener('pointermove', e=>{
+        if(!st) return;
+        const dx = e.clientX - st.sx, dy = e.clientY - st.sy;
+        if(Math.abs(dx) + Math.abs(dy) > 6) st.moved = true;
+        if(!st.moved) return;
+        el._x = st.ox + dx;
+        el._y = st.oy + dy;
+        el.style.transform = `translate(${el._x}px, ${el._y}px) rotate(0deg)`;
+    });
+    const end = e=>{
+        if(!st) return;
+        const wasMoved = st.moved;
+        st = null;
+        el.classList.remove('lifting');
+        if(wasMoved){
+            el.classList.add('settling');
+            el.style.transform = `translate(${el._x}px, ${el._y}px) rotate(${el._rot}deg)`;
+            setTimeout(()=>el.classList.remove('settling'), 380);
+        } else {
+            showFortune(el);
+        }
+    };
+    el.addEventListener('pointerup', end);
+    el.addEventListener('pointercancel', end);
+}
+
+function showFortune(el){
+    document.getElementById('fortune-text').innerText = el._fortune || '今天也要开开心心哦 🐾';
+    document.getElementById('fortune-overlay').classList.add('show');
+}
+function closeFortune(){
+    document.getElementById('fortune-overlay').classList.remove('show');
+}
+
+const nameInput = document.getElementById('dogNameInput');
+nameInput.addEventListener('input', function(e){
+    document.getElementById('startBtn').disabled = e.target.value.trim().length === 0;
+});
+nameInput.addEventListener('keydown', function(e){
+    if((e.key === 'Enter' || e.keyCode === 13 || e.key === 'Go') && this.value.trim().length > 0){
+        e.preventDefault();
+        startTest();
+    }
+});
+document.getElementById('startBtn').disabled = true;
+
+function switchPage(id){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active','enter'));
+    const el = document.getElementById(id);
+    el.classList.add('active','enter');
+    window.scrollTo(0,0);
+}
+
+function startTest(){
+    const n = nameInput.value.trim();
+    if(!n) return;
+    dogName = n;
+    currentQ = 0; scores.fill(null); pendingUser = null; profileData = {};
+    switchPage('page-quiz');
+    renderQuestion();
+}
+
+/* =========================================================
+   答题页
+   ========================================================= */
+function renderQuestion(){
+    document.getElementById('progress-text').innerHTML = `<b>${currentQ+1}</b> / ${questions.length}`;
+    document.getElementById('btn-back').disabled = currentQ === 0;
+
+    const pct = ((currentQ + 1) / questions.length) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-bone').style.left = pct + '%';
+
+    const q = questions[currentQ];
+    document.getElementById('q-num').innerText = '第 ' + (currentQ+1) + ' 题';
+    document.getElementById('quiz-text').innerHTML =
+        q.t.replace('{name}', `<span class="nm">${dogName}</span>`);
+
+    renderIllustration(currentQ);
+    renderScale();
+}
+
+function renderIllustration(idx){
+    const box = document.getElementById('q-illustration');
+    const q = questions[idx];
+    if(q.img){
+        box.style.display = '';
+        box.innerHTML = `<img src="${illUrl(q.img)}" alt="">`;
+    } else {
+        box.style.display = 'none';
+        box.innerHTML = '';
+    }
+}
+
+function renderScale(){
+    const box = document.getElementById('scale-dots');
+    box.innerHTML = '';
+    for(let v=1; v<=7; v++){
+        const d = document.createElement('button');
+        d.className = 'dot';
+        d.textContent = v;
+        if(scores[currentQ] === v) d.classList.add('selected');
+        d.onclick = ()=>selectAnswer(v);
+        box.appendChild(d);
+    }
+}
+
+function goBack(){
+    if(currentQ > 0){ currentQ--; renderQuestion(); }
+}
+
+function selectAnswer(val){
+    scores[currentQ] = val;
+    document.querySelectorAll('#scale-dots .dot').forEach((d,i)=>d.classList.toggle('selected', i+1===val));
+    setTimeout(()=>{
+        if(currentQ < questions.length - 1){
+            currentQ++; renderQuestion();
+        } else {
+            calculateAndShowResult();
+        }
+    }, 230);
+}
+
+/* =========================================================
+   结果
+   ========================================================= */
+function calculateAndShowResult(){
+    const sums = {1:0,2:0,3:0,4:0,5:0};
+    const counts = {1:0,2:0,3:0,4:0,5:0};
+    scores.forEach((val, i)=>{
+        const q = questions[i];
+        const finalVal = q.r ? (8 - val) : val;
+        sums[q.f] += finalVal; counts[q.f]++;
+    });
+    const avg = {
+        1: sums[1]/counts[1], 2: sums[2]/counts[2], 3: sums[3]/counts[3],
+        4: sums[4]/counts[4], 5: sums[5]/counts[5],
+    };
+    const user = [
+        Math.round(((8-avg[1])/7)*100),
+        Math.round(((8-avg[2])/7)*100),
+        Math.round((avg[3]/7)*100),
+        Math.round((avg[4]/7)*100),
+        Math.round(((8-avg[5])/7)*100),
+    ];
+    pendingUser = user;
+    switchPage('page-profile');
+}
+
+let lastUser = null;
+function renderResult(user){
+    lastUser = user;
+    switchPage('page-result');
+    document.getElementById('result-title').innerText = `${dogName} 的性格画像`;
+    const arch = matchArchetype(user);
+
+    document.getElementById('archetype-emoji').innerText = arch.emoji;
+    document.getElementById('archetype-name').innerHTML = `<span class="type-top">「${arch.titleTop || arch.title}</span><span class="type-bottom">${arch.titleBottom || ''}」</span>`;
+    document.getElementById('archetype-tagline').innerText = arch.tagline;
+
+    renderRadar(user);
+    renderDims(user);
+
+    document.getElementById('analysis-text').innerText = arch.analysis;
+    document.getElementById('advice-list').innerHTML =
+        arch.advice.map(a=>'<li>'+a+'</li>').join('');
+
+    fillCert(arch, user);
+}
+
+function renderRadar(user){
+    const wrap = document.getElementById('radar-wrap');
+    const cx = 180, cy = 168, R = 92, LR = R + 26;
+    const n = DIMS.length;
+    const ang = i => (i*72 - 90) * Math.PI/180;
+    const pt = (r, i) => [cx + r*Math.cos(ang(i)), cy + r*Math.sin(ang(i))];
+    const poly = r => Array.from({length:n}, (_,i)=>{
+        const p = pt(r, i); return p[0].toFixed(1)+','+p[1].toFixed(1);
+    }).join(' ');
+
+    let g = '';
+    for(let k=1;k<=4;k++){
+        g += `<polygon points="${poly(R*k/4)}" fill="none" stroke="rgba(122,96,60,.14)" stroke-width="1"/>`;
+    }
+    for(let i=0;i<n;i++){
+        const p = pt(R, i);
+        g += `<line x1="${cx}" y1="${cy}" x2="${p[0]}" y2="${p[1]}" stroke="rgba(122,96,60,.14)"/>`;
+    }
+    const dataPts = user.map((v,i)=>{
+        const p = pt(R*v/100, i); return p[0].toFixed(1)+','+p[1].toFixed(1);
+    }).join(' ');
+    g += `<polygon points="${dataPts}" fill="rgba(201,123,74,.28)" stroke="#C97B4A" stroke-width="2.5" stroke-linejoin="round"/>`;
+    user.forEach((v,i)=>{
+        const p = pt(R*v/100, i);
+        g += `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#C97B4A" stroke="#fff" stroke-width="2"/>`;
+    });
+    DIMS.forEach((d, i)=>{
+        const p = pt(LR, i);
+        const anchor = p[0] < cx-8 ? 'end' : (p[0] > cx+8 ? 'start' : 'middle');
+        g += `<text x="${p[0]}" y="${p[1]+5}" text-anchor="${anchor}"
+            font-family="'ZCOOL KuaiLe','PingFang SC',sans-serif" font-size="13" fill="#6E6657">${d.name}</text>`;
+    });
+    wrap.innerHTML = `<svg viewBox="0 0 360 344" role="img">${g}</svg>`;
+}
+
+function renderDims(user){
+    document.getElementById('dim-section').innerHTML = DIMS.map((d,i)=>{
+        const info = dimInfo(d.key, user[i]);
+        return `
+        <div class="dim-card">
+            <div class="dim-head" onclick="toggleDim(this)">
+                <div class="dim-title">
+                    <span class="dim-name">${info.name}</span>
+                    <span class="dim-en">${info.en}</span>
+                </div>
+                <div class="dim-right">
+                    <span class="dim-score">${info.score}<span> 分</span></span>
+                    <span class="dim-chevron">▾</span>
+                </div>
+            </div>
+            <div class="dim-bar"><i style="width:${info.score}%"></i></div>
+            <div class="dim-summary">${info.brief}</div>
+            <div class="dim-detail">
+                <div class="dim-meaning">${info.meaning}</div>
+                <div class="dim-facets"><b>涵盖：</b>${info.facets}</div>
+                <div class="dim-tip"><b>建议：</b>${info.tip}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function toggleDim(head){
+    head.closest('.dim-card').classList.toggle('expanded');
+}
+
+function fillCert(arch, user){
+    document.getElementById('cert-name').innerText = dogName;
+    document.getElementById('cert-type').innerText = arch.emoji + ' ' + arch.title;
+    document.getElementById('cert-bars').innerHTML = DIMS.map((d,i)=>
+        `<div class="cert-bar">
+            <span class="lb">${d.name}</span>
+            <div class="track"><i style="width:${user[i]}%"></i></div>
+            <span class="val">${user[i]}</span>
+        </div>`).join('');
+    const d = new Date();
+    document.getElementById('cert-date').innerText =
+        `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* =========================================================
+   保存 / 分享
+   ========================================================= */
+function cardText(arch, user){
+    const dims = DIMS.map((d,i)=>`${d.name} ${user[i]}`).join(' · ');
+    return `🐶 我的狗狗「${dogName}」的性格画像\n类型：${arch.emoji}「${arch.title}」\n${dims}\n—— DPQ 犬类性格 45 题 · 结果由 AI 生成，仅供参考`;
+}
+
+async function saveCard(){
+    if(!lastUser) return;
+    const arch = matchArchetype(lastUser);
+    const node = document.getElementById('result-card');
+    try{
+        if(window.html2canvas){
+            const canvas = await html2canvas(node, {scale:2, backgroundColor:null, useCORS:true});
+            downloadCanvas(canvas, `${dogName || '狗狗'}-性格画像.png`);
+        } else {
+            downloadCanvas(drawVectorCard(arch, lastUser));
+        }
+    }catch(e){
+        downloadCanvas(drawVectorCard(arch, lastUser));
+    }
+}
+
+function shareResult(){
+    if(!lastUser) return;
+    const text = cardText(matchArchetype(lastUser), lastUser);
+    if(navigator.share){
+        navigator.share({title:'狗狗性格测试', text}).catch(()=>copyText(text));
+    } else {
+        copyText(text);
+    }
+}
+
+function copyText(text){
+    if(navigator.clipboard){
+        navigator.clipboard.writeText(text).then(()=>toast('结果文字已复制，快去分享吧 ✨')).catch(()=>toast(text));
+    } else {
+        toast(text);
+    }
+}
+
+function downloadCanvas(canvas, filename){
+    const a = document.createElement('a');
+    a.download = filename;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    toast('卡片已生成，请查看浏览器下载 📥');
+}
+
+function drawVectorCard(arch, user){
+    const W = 900, H = 1200;
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const x = c.getContext('2d');
+    x.fillStyle = '#FFF9EE'; x.fillRect(0,0,W,H);
+    for(let i=0;i<900;i++){
+        x.fillStyle = 'rgba(122,96,60,'+(Math.random()*0.04)+')';
+        x.fillRect(Math.random()*W, Math.random()*H, 2, 2);
+    }
+    x.strokeStyle = 'rgba(201,123,74,.28)'; x.lineWidth = 3;
+    roundRect(x, 34, 34, W-68, H-68, 24); x.stroke();
+
+    x.textAlign = 'center';
+    x.fillStyle = '#A99E88'; x.font = '26px "PingFang SC", sans-serif';
+    x.fillText('🐾 狗狗性格测试', W/2, 110);
+
+    x.fillStyle = '#3E3A33';
+    x.font = 'bold 96px "STKaiti","KaiTi","PingFang SC",serif';
+    x.fillText(dogName || '我的狗狗', W/2, 250);
+
+    x.fillStyle = '#C97B4A';
+    roundRect(x, W/2-260, 300, 520, 72, 36); x.fill();
+    x.fillStyle = '#fff'; x.font = '34px "PingFang SC", sans-serif';
+    x.fillText(arch.emoji + ' 「' + arch.title + '」', W/2, 350);
+
+    const bx = 170, bw = W-340, y0 = 460, gap = 78, bh = 30;
+    x.textAlign = 'left';
+    DIMS.forEach((d,i)=>{
+        const y = y0 + i*gap;
+        x.fillStyle = '#6E6657'; x.font = '30px "PingFang SC", sans-serif';
+        x.fillText(d.name, bx, y+4);
+        x.fillStyle = '#ECE1CB';
+        roundRect(x, bx+210, y-8, bw-210, bh, 15); x.fill();
+        const grad = x.createLinearGradient(bx+210,0,bx+bw,0);
+        grad.addColorStop(0,'#C97B4A'); grad.addColorStop(1,'#E3A83B');
+        x.fillStyle = grad;
+        roundRect(x, bx+210, y-8, (bw-210)*user[i]/100, bh, 15); x.fill();
+        x.fillStyle = '#C97B4A'; x.textAlign = 'right'; x.font = '30px "PingFang SC", sans-serif';
+        x.fillText(String(user[i]), W-bx, y+2);
+        x.textAlign = 'left';
+    });
+
+    x.textAlign = 'center';
+    x.fillStyle = '#A99E88'; x.font = '22px "PingFang SC", sans-serif';
+    x.fillText('DPQ · 犬类性格 45 题短版', W/2, H-150);
+    x.fillText('结果由 AI 生成 · 仅供娱乐参考', W/2, H-112);
+    const d = new Date();
+    x.fillText(`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`, W/2, H-74);
+    return c;
+}
+function roundRect(x, a,b,w,h,r){
+    x.beginPath();
+    x.moveTo(a+r,b); x.arcTo(a+w,b,a+w,b+h,r); x.arcTo(a+w,b+h,a,b+h,r);
+    x.arcTo(a,b+h,a,b,r); x.arcTo(a,b,a+w,b,r); x.closePath();
+}
+
+let toastTimer = null;
+function toast(msg){
+    let el = document.getElementById('toast');
+    if(!el){
+        el = document.createElement('div');
+        el.id = 'toast';
+        el.style.cssText = 'position:fixed;left:50%;bottom:40px;transform:translateX(-50%);z-index:999;'
+            +'max-width:82%;padding:12px 18px;border-radius:12px;background:rgba(62,58,51,.92);color:#fff;'
+            +'font-size:13px;line-height:1.5;text-align:center;box-shadow:0 8px 20px rgba(0,0,0,.25);'
+            +'transition:opacity .3s;opacity:0;font-family:"PingFang SC","Microsoft YaHei",sans-serif;';
+        document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>{ el.style.opacity = '0'; }, 2600);
+}
+
+initializeProfile();
+renderCover();
+</script>
+</body>
+</html>
